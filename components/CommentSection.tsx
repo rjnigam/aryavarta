@@ -1,14 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { MessageCircle, Send, BookOpen, Lock } from 'lucide-react';
+import { MessageCircle, Send, BookOpen, Lock, MapPin } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface CommentSectionProps {
   author: string;
+  authorLocation?: string;
+  authorImage?: string;
 }
 
-export function CommentSection({ author }: CommentSectionProps) {
+export function CommentSection({ author, authorLocation = 'Texas, United States', authorImage = '/authors/rajath-nigam.jpg' }: CommentSectionProps) {
   const [comment, setComment] = useState('');
   const [comments, setComments] = useState<Array<{ username: string; comment: string; date: string }>>([]);
   // In Phase 2, this will check real authentication status
@@ -38,15 +41,22 @@ export function CommentSection({ author }: CommentSectionProps) {
             {/* Author Bio */}
       <div className="bg-gradient-to-br from-saffron-50 via-white to-sandalwood-50 rounded-xl p-6 border-2 border-saffron-200 mb-12">
         <div className="flex items-start gap-4">
-          <div className="w-16 h-16 bg-gradient-to-br from-saffron-600 to-vermillion-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
-            <BookOpen className="text-white" size={28} />
+          <div className="relative w-16 h-16 rounded-full flex-shrink-0 overflow-hidden shadow-lg ring-2 ring-saffron-200">
+            <Image
+              src={authorImage}
+              alt={author}
+              fill
+              className="object-cover"
+              sizes="64px"
+            />
           </div>
           <div className="flex-1">
-            <h3 className="text-xl font-bold text-gray-900 mb-2 font-serif">
+            <h3 className="text-xl font-bold text-gray-900 mb-1 font-serif">
               {author}
             </h3>
-            <p className="text-gray-700 leading-relaxed text-sm">
-              <span className="font-devanagari">आर्यवर्त</span> • Aryavarta — Ancient Philosophy for Modern Minds
+            <p className="text-gray-600 text-sm flex items-center gap-1.5">
+              <MapPin size={14} className="text-saffron-600" />
+              {authorLocation}
             </p>
           </div>
         </div>
