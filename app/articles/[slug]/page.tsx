@@ -130,24 +130,10 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           </div>
         )}
 
-        {/* Author Section with Traditional Style */}
-        <div className="mt-8 pt-8 border-t-2 border-saffron-200">
-          <div className="flex items-start gap-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-saffron-600 via-vermillion-600 to-sandalwood-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
-              <BookOpen className="text-white" size={24} />
-            </div>
-            <div>
-              <h3 className="font-bold text-gray-900 mb-1 font-serif text-lg">{article.author}</h3>
-              <p className="text-gray-600 text-sm leading-relaxed">
-                Dedicated to making ancient Indian wisdom accessible and relevant to modern life. 
-                Each article is thoroughly researched from authentic श्रुति and स्मृति sources with deep respect for our सनातन परंपरा (eternal tradition).
-              </p>
-            </div>
-          </div>
-        </div>
-
         {/* Comment Section */}
-        <CommentSection />
+        <div className="mt-12">
+          <CommentSection />
+        </div>
       </article>
 
       {/* Footer with Traditional Design */}
