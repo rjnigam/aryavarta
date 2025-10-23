@@ -69,7 +69,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
       <article className="container mx-auto px-4 py-12 max-w-4xl">
         {/* Back Link */}
         <Link 
-          href="/#articles"
+          href="/articles"
           className="inline-flex items-center gap-2 text-saffron-700 hover:text-vermillion-700 mb-8 transition font-medium"
         >
           <ArrowLeft size={20} />
