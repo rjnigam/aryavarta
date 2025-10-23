@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { BookOpen, Calendar, Clock, Filter, ChevronDown } from 'lucide-react';
 import type { ArticleMetadata } from '@/lib/articles';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface ArticlesListClientProps {
   articles: ArticleMetadata[];
@@ -95,9 +96,16 @@ export function ArticlesListClient({ articles }: ArticlesListClientProps) {
               </div>
             </div>
 
-            {showFilters && (
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <div className="grid md:grid-cols-2 gap-4">
+            <AnimatePresence>
+              {showFilters && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="mt-4 pt-4 border-t border-gray-200"
+                >
+                  <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Year
@@ -142,8 +150,9 @@ export function ArticlesListClient({ articles }: ArticlesListClientProps) {
                     Clear all filters
                   </button>
                 )}
-              </div>
-            )}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </section>
@@ -167,36 +176,45 @@ export function ArticlesListClient({ articles }: ArticlesListClientProps) {
             </div>
           ) : (
             <div className="space-y-4">
-              {filteredArticles.map((article) => (
-                <Link
-                  key={article.slug}
-                  href={`/articles/${article.slug}`}
-                  className="block bg-white rounded-xl shadow-md border border-saffron-100 hover:shadow-xl hover:border-saffron-300 transition-all p-6 group"
-                >
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-saffron-700 transition font-serif">
-                    {article.title}
-                  </h2>
-                  
-                  <p className="text-gray-600 mb-4 line-clamp-2">
-                    {article.excerpt}
-                  </p>
-                  
-                  <div className="flex items-center gap-4 text-sm text-gray-500">
-                    <div className="flex items-center gap-1">
-                      <Calendar size={16} />
-                      <span>{new Date(article.date).toLocaleDateString('en-US', { 
-                        month: 'short', 
-                        day: 'numeric', 
-                        year: 'numeric' 
-                      })}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Clock size={16} />
-                      <span>{article.readTime}</span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
+              <AnimatePresence mode="sync">
+                {filteredArticles.map((article, index) => (
+                  <motion.div
+                    key={article.slug}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                  >
+                    <Link
+                      href={`/articles/${article.slug}`}
+                      className="block bg-white rounded-xl shadow-md border border-saffron-100 hover:shadow-xl hover:border-saffron-300 transition-all p-6 group hover:scale-[1.01] transform"
+                    >
+                      <h2 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-saffron-700 transition font-serif">
+                        {article.title}
+                      </h2>
+                      
+                      <p className="text-gray-600 mb-4 line-clamp-2">
+                        {article.excerpt}
+                      </p>
+                      
+                      <div className="flex items-center gap-4 text-sm text-gray-500">
+                        <div className="flex items-center gap-1">
+                          <Calendar size={16} />
+                          <span>{new Date(article.date).toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric', 
+                            year: 'numeric' 
+                          })}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Clock size={16} />
+                          <span>{article.readTime}</span>
+                        </div>
+                      </div>
+                    </Link>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </div>
           )}
         </div>

@@ -3,61 +3,78 @@ import Link from 'next/link';
 import { NewsletterSignup } from '@/components/NewsletterSignup';
 import { Header } from '@/components/Header';
 import { getRecentArticles } from '@/lib/articles';
+import { PageTransition } from '@/components/PageTransition';
+import { ScrollReveal } from '@/components/ScrollReveal';
 
 export default function Home() {
   const articles = getRecentArticles(6);
   return (
-    <main className="min-h-screen bg-gradient-to-b from-saffron-50 via-white to-sandalwood-50">
-      {/* Decorative top border with traditional pattern */}
-      <div className="h-2 bg-gradient-to-r from-vermillion-600 via-saffron-600 to-sandalwood-600"></div>
-      
-      <Header />
+    <PageTransition>
+      <main className="min-h-screen bg-gradient-to-b from-saffron-50 via-white to-sandalwood-50">
+        {/* Decorative top border with traditional pattern */}
+        <div className="h-2 bg-gradient-to-r from-vermillion-600 via-saffron-600 to-sandalwood-600"></div>
+        
+        <Header />
 
-      {/* Hero Section with Mandala Pattern */}
-      <section className="container mx-auto px-4 py-20 md:py-32 bg-mandala">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-saffron-100 to-sandalwood-100 text-saffron-800 px-5 py-2 rounded-full mb-8 text-sm font-semibold border border-saffron-200 shadow-sm">
-            <Sparkles size={16} className="text-saffron-600" />
-            <span>सनातन ज्ञान • Ancient Wisdom for Modern Times</span>
+        {/* Hero Section with Mandala Pattern */}
+        <section className="container mx-auto px-4 py-20 md:py-32 bg-mandala">
+          <div className="max-w-4xl mx-auto text-center">
+            <ScrollReveal delay={0.1}>
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-saffron-100 to-sandalwood-100 text-saffron-800 px-5 py-2 rounded-full mb-8 text-sm font-semibold border border-saffron-200 shadow-sm">
+                <Sparkles size={16} className="text-saffron-600" />
+                <span>सनातन ज्ञान • Ancient Wisdom for Modern Times</span>
+              </div>
+            </ScrollReveal>
+            
+            <ScrollReveal delay={0.2}>
+              <h2 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight font-serif">
+                Ancient Philosophy for{' '}
+                <span className="bg-gradient-to-r from-saffron-700 via-vermillion-700 to-sandalwood-700 bg-clip-text text-transparent">
+                  Modern Minds
+                </span>
+              </h2>
+            </ScrollReveal>
+            
+            <ScrollReveal delay={0.3}>
+              <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed">
+                In an age of unprecedented comfort yet persistent emptiness, rediscover the philosophical wisdom 
+                that helps us lead meaningful lives — free from dogma, rich in insight.
+              </p>
+            </ScrollReveal>
+
+            <ScrollReveal delay={0.4}>
+              <div className="max-w-md mx-auto" id="subscribe">
+                <NewsletterSignup />
+              </div>
+
+              <p className="text-sm text-gray-500 mt-4">
+                Join our community of seekers on this sacred journey
+              </p>
+            </ScrollReveal>
           </div>
-          
-          <h2 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight font-serif">
-            Ancient Philosophy for{' '}
-            <span className="bg-gradient-to-r from-saffron-700 via-vermillion-700 to-sandalwood-700 bg-clip-text text-transparent">
-              Modern Minds
-            </span>
-          </h2>
-          
-          <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed">
-            In an age of unprecedented comfort yet persistent emptiness, rediscover the philosophical wisdom 
-            that helps us lead meaningful lives — free from dogma, rich in insight.
-          </p>
-
-          <div className="max-w-md mx-auto" id="subscribe">
-            <NewsletterSignup />
-          </div>
-
-          <p className="text-sm text-gray-500 mt-4">
-            Join our community of seekers on this sacred journey
-          </p>
-        </div>
-      </section>
+        </section>
 
       {/* Stats Section with Traditional Design */}
       <section className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-3 gap-8">
-          <div className="text-center group">
-            <div className="text-4xl font-bold bg-gradient-to-br from-saffron-700 to-vermillion-700 bg-clip-text text-transparent mb-2 font-serif group-hover:scale-110 transition-transform">5000+</div>
-            <div className="text-gray-600 text-sm font-medium">Years of Wisdom</div>
-          </div>
-          <div className="text-center group">
-            <div className="text-4xl font-bold bg-gradient-to-br from-saffron-700 to-vermillion-700 bg-clip-text text-transparent mb-2 font-serif group-hover:scale-110 transition-transform">Sanatan</div>
-            <div className="text-gray-600 text-sm font-medium">Eternal Dharma</div>
-          </div>
-          <div className="text-center group">
-            <div className="text-4xl font-bold bg-gradient-to-br from-saffron-700 to-vermillion-700 bg-clip-text text-transparent mb-2 font-serif group-hover:scale-110 transition-transform">Weekly</div>
-            <div className="text-gray-600 text-sm font-medium">New Insights</div>
-          </div>
+          <ScrollReveal delay={0.1}>
+            <div className="text-center group cursor-default">
+              <div className="text-4xl font-bold bg-gradient-to-br from-saffron-700 to-vermillion-700 bg-clip-text text-transparent mb-2 font-serif group-hover:scale-110 transition-transform">5000+</div>
+              <div className="text-gray-600 text-sm font-medium">Years of Wisdom</div>
+            </div>
+          </ScrollReveal>
+          <ScrollReveal delay={0.2}>
+            <div className="text-center group cursor-default">
+              <div className="text-4xl font-bold bg-gradient-to-br from-saffron-700 to-vermillion-700 bg-clip-text text-transparent mb-2 font-serif group-hover:scale-110 transition-transform">Sanatan</div>
+              <div className="text-gray-600 text-sm font-medium">Eternal Dharma</div>
+            </div>
+          </ScrollReveal>
+          <ScrollReveal delay={0.3}>
+            <div className="text-center group cursor-default">
+              <div className="text-4xl font-bold bg-gradient-to-br from-saffron-700 to-vermillion-700 bg-clip-text text-transparent mb-2 font-serif group-hover:scale-110 transition-transform">Weekly</div>
+              <div className="text-gray-600 text-sm font-medium">New Insights</div>
+            </div>
+          </ScrollReveal>
         </div>
       </section>
 
@@ -65,44 +82,52 @@ export default function Home() {
       <section id="about" className="bg-white py-20 border-y border-saffron-100">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <h3 className="text-3xl md:text-4xl font-bold text-center mb-4 text-gray-900 font-serif">
-              Why Aryavarta?
-            </h3>
-            <p className="text-center text-saffron-700 mb-12 font-serif italic">योगः कर्मसु कौशलम् • Excellence in Action</p>
+            <ScrollReveal>
+              <h3 className="text-3xl md:text-4xl font-bold text-center mb-4 text-gray-900 font-serif">
+                Why Aryavarta?
+              </h3>
+              <p className="text-center text-saffron-700 mb-12 font-serif italic">योगः कर्मसु कौशलम् • Excellence in Action</p>
+            </ScrollReveal>
             
             <div className="grid md:grid-cols-3 gap-8">
-              <div className="text-center group">
-                <div className="w-20 h-20 bg-gradient-to-br from-saffron-100 to-sandalwood-100 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-saffron-200 group-hover:scale-110 group-hover:rotate-6 transition-all shadow-md">
-                  <BookOpen className="text-saffron-700" size={36} />
+              <ScrollReveal delay={0.1}>
+                <div className="text-center group cursor-default h-full">
+                  <div className="w-20 h-20 bg-gradient-to-br from-saffron-100 to-sandalwood-100 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-saffron-200 group-hover:scale-110 group-hover:rotate-6 transition-all shadow-md">
+                    <BookOpen className="text-saffron-700" size={36} />
+                  </div>
+                  <h4 className="text-xl font-semibold mb-3 text-gray-900 font-serif">Pure Philosophy</h4>
+                  <p className="text-gray-600 leading-relaxed">
+                    Timeless wisdom from ancient texts — Vedas, Upanishads, Gita — presented as philosophy, 
+                    not dogma. Critical thinking over blind faith.
+                  </p>
                 </div>
-                <h4 className="text-xl font-semibold mb-3 text-gray-900 font-serif">Pure Philosophy</h4>
-                <p className="text-gray-600 leading-relaxed">
-                  Timeless wisdom from ancient texts — Vedas, Upanishads, Gita — presented as philosophy, 
-                  not dogma. Critical thinking over blind faith.
-                </p>
-              </div>
+              </ScrollReveal>
 
-              <div className="text-center group">
-                <div className="w-20 h-20 bg-gradient-to-br from-saffron-100 to-sandalwood-100 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-saffron-200 group-hover:scale-110 group-hover:rotate-6 transition-all shadow-md">
-                  <Compass className="text-saffron-700" size={36} />
+              <ScrollReveal delay={0.2}>
+                <div className="text-center group cursor-default h-full">
+                  <div className="w-20 h-20 bg-gradient-to-br from-saffron-100 to-sandalwood-100 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-saffron-200 group-hover:scale-110 group-hover:rotate-6 transition-all shadow-md">
+                    <Compass className="text-saffron-700" size={36} />
+                  </div>
+                  <h4 className="text-xl font-semibold mb-3 text-gray-900 font-serif">Spiritual Healing</h4>
+                  <p className="text-gray-600 leading-relaxed">
+                    Filling the void that wealth and technology cannot — finding happiness in simplicity, 
+                    meaning in everyday life, and peace within ourselves.
+                  </p>
                 </div>
-                <h4 className="text-xl font-semibold mb-3 text-gray-900 font-serif">Spiritual Healing</h4>
-                <p className="text-gray-600 leading-relaxed">
-                  Filling the void that wealth and technology cannot — finding happiness in simplicity, 
-                  meaning in everyday life, and peace within ourselves.
-                </p>
-              </div>
+              </ScrollReveal>
 
-              <div className="text-center group">
-                <div className="w-20 h-20 bg-gradient-to-br from-saffron-100 to-sandalwood-100 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-saffron-200 group-hover:scale-110 group-hover:rotate-6 transition-all shadow-md">
-                  <Heart className="text-saffron-700" size={36} />
+              <ScrollReveal delay={0.3}>
+                <div className="text-center group cursor-default h-full">
+                  <div className="w-20 h-20 bg-gradient-to-br from-saffron-100 to-sandalwood-100 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-saffron-200 group-hover:scale-110 group-hover:rotate-6 transition-all shadow-md">
+                    <Heart className="text-saffron-700" size={36} />
+                  </div>
+                  <h4 className="text-xl font-semibold mb-3 text-gray-900 font-serif">Beyond Division</h4>
+                  <p className="text-gray-600 leading-relaxed">
+                    Philosophical guidance that transcends religious boundaries — countering hatred and 
+                    impulsive conflict with wisdom, compassion, and understanding.
+                  </p>
                 </div>
-                <h4 className="text-xl font-semibold mb-3 text-gray-900 font-serif">Beyond Division</h4>
-                <p className="text-gray-600 leading-relaxed">
-                  Philosophical guidance that transcends religious boundaries — countering hatred and 
-                  impulsive conflict with wisdom, compassion, and understanding.
-                </p>
-              </div>
+              </ScrollReveal>
             </div>
           </div>
         </div>
@@ -110,7 +135,8 @@ export default function Home() {
 
       {/* Mission Section with Ornamental Design */}
       <section className="container mx-auto px-4 py-20 bg-mandala">
-        <div className="max-w-5xl mx-auto bg-gradient-to-br from-saffron-50 via-white to-sandalwood-50 rounded-2xl p-8 md:p-16 border-2 border-saffron-200 shadow-xl relative overflow-hidden">
+        <ScrollReveal>
+          <div className="max-w-5xl mx-auto bg-gradient-to-br from-saffron-50 via-white to-sandalwood-50 rounded-2xl p-8 md:p-16 border-2 border-saffron-200 shadow-xl relative overflow-hidden">
           {/* Decorative corners */}
           <div className="absolute top-0 left-0 w-16 h-16 border-t-4 border-l-4 border-vermillion-600 rounded-tl-2xl"></div>
           <div className="absolute top-0 right-0 w-16 h-16 border-t-4 border-r-4 border-vermillion-600 rounded-tr-2xl"></div>
@@ -142,18 +168,21 @@ export default function Home() {
             </p>
           </div>
         </div>
+        </ScrollReveal>
       </section>
 
       {/* Articles Preview Section with Horizontal Auto-Scrolling */}
       <section id="articles" className="bg-white py-20 overflow-hidden">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
-            <h3 className="text-3xl md:text-4xl font-bold text-center mb-4 text-gray-900 font-serif">
-              Latest Wisdom
-            </h3>
-            <p className="text-center text-gray-600 mb-12">
-              Explore our growing collection of sacred insights
-            </p>
+            <ScrollReveal>
+              <h3 className="text-3xl md:text-4xl font-bold text-center mb-4 text-gray-900 font-serif">
+                Latest Wisdom
+              </h3>
+              <p className="text-center text-gray-600 mb-12">
+                Explore our growing collection of sacred insights
+              </p>
+            </ScrollReveal>
             
             {/* Auto-scrolling container with defined boundaries */}
             <div className="relative overflow-hidden">
@@ -223,5 +252,6 @@ export default function Home() {
         </div>
       </footer>
     </main>
+    </PageTransition>
   );
 }
