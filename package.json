@@ -1,0 +1,47 @@
+{
+  "name": "aryavarta-newsletter",
+  "version": "1.0.0",
+  "description": "Weekly newsletter platform for ancient Indian wisdom and Dharmic teachings",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "new-article": "node scripts/new-article.js",
+    "pdf-to-article": "node scripts/pdf-to-article.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
+    "@supabase/supabase-js": "^2.76.1",
+    "date-fns": "^4.1.0",
+    "gray-matter": "^4.0.3",
+    "lucide-react": "^0.546.0",
+    "next": "^16.0.0",
+    "pdf-parse": "^2.4.5",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-hook-form": "^7.65.0",
+    "react-markdown": "^10.1.0",
+    "rehype-raw": "^7.0.0",
+    "rehype-sanitize": "^6.0.0",
+    "remark-footnotes": "^4.0.1",
+    "remark-gfm": "^4.0.1",
+    "resend": "^6.2.2",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@types/node": "^24.9.1",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^9.38.0",
+    "eslint-config-next": "^16.0.0",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.15",
+    "typescript": "^5.9.3"
+  }
+}
