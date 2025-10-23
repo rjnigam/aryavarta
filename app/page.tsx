@@ -1,6 +1,7 @@
 import { BookOpen, Sparkles, Mail, Heart, Compass } from 'lucide-react';
 import Link from 'next/link';
 import { NewsletterSignup } from '@/components/NewsletterSignup';
+import { Header } from '@/components/Header';
 import { getRecentArticles } from '@/lib/articles';
 
 export default function Home() {
@@ -10,27 +11,7 @@ export default function Home() {
       {/* Decorative top border with traditional pattern */}
       <div className="h-2 bg-gradient-to-r from-vermillion-600 via-saffron-600 to-sandalwood-600"></div>
       
-      {/* Header */}
-      <header className="border-b border-saffron-200 bg-white/90 backdrop-blur-md sticky top-0 z-50 shadow-sm">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-saffron-600 via-vermillion-600 to-sandalwood-600 rounded-lg flex items-center justify-center shadow-lg transform hover:rotate-6 transition-transform">
-              <BookOpen className="text-white" size={24} />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-saffron-700 via-vermillion-700 to-sandalwood-700 bg-clip-text text-transparent font-serif">
-                आर्यवर्त
-              </h1>
-              <p className="text-xs text-gray-500 -mt-1">Aryavarta</p>
-            </div>
-          </div>
-          <nav className="hidden md:flex gap-8">
-            <a href="#about" className="text-gray-700 hover:text-saffron-700 transition font-medium">About</a>
-            <a href="#articles" className="text-gray-700 hover:text-saffron-700 transition font-medium">Articles</a>
-            <a href="#subscribe" className="text-gray-700 hover:text-saffron-700 transition font-medium">Subscribe</a>
-          </nav>
-        </div>
-      </header>
+      <Header />
 
       {/* Hero Section with Mandala Pattern */}
       <section className="container mx-auto px-4 py-20 md:py-32 bg-mandala">
