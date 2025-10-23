@@ -4,6 +4,35 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// Import username pool
+const usernamePool = require('@/lib/usernamePool');
+
+/**
+ * Get a unique username from the pool
+ */
+async function getUniqueUsername(): Promise<string> {
+  const maxAttempts = 20;
+  
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const candidate = usernamePool.getRandomUsername();
+    
+    // Check if username already exists in database
+    const { data: existing } = await supabase
+      .from('subscribers')
+      .select('username')
+      .eq('username', candidate)
+      .single();
+    
+    if (!existing) {
+      return candidate;
+    }
+  }
+  
+  // Fallback: if we can't find a unique username after maxAttempts,
+  // throw an error (this should rarely happen with 6000+ usernames)
+  throw new Error('Unable to generate unique username. Please try again.');
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { email, name } = await request.json();
@@ -42,15 +71,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate unique username
-    const generateUsername = (name: string, email: string) => {
-      // Take first name and add random numbers
-      const firstName = name.split(' ')[0].toLowerCase();
-      const randomNum = Math.floor(Math.random() * 9000) + 1000; // 4-digit number
-      return `${firstName}${randomNum}`;
-    };
-
-    const username = generateUsername(name, email);
+    // Generate unique username from Sanskrit word pool
+    const username = await getUniqueUsername();
 
     // Insert new subscriber
     const { data: newSubscriber, error: insertError } = await supabase
