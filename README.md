@@ -154,7 +154,7 @@ Aryavarta/
 - Image optimization
 - Reading time calculation
 - Tag-based categorization
-- 40+ academic citations per article
+- Thoroughly researched with scholarly citations
 
 ### 3. Article Carousel
 - Auto-scrolling every 5 seconds
@@ -448,7 +448,7 @@ MX      @       feedback-smtp.ap-northeast-1.amazonses.com (10)     1 Hour
 
 1. **Hinduism Misinterpreted Pacifism**
    - Slug: `hinduism-misinterpreted-pacifism`
-   - 404 lines, 40+ academic citations
+   - 404 lines, extensively researched with scholarly citations
    - Topics: Non-violence, self-defense, dharmic warfare
 
 2. **How the Vedas Guide Response to Aggressors**

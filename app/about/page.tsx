@@ -41,26 +41,24 @@ export default function AboutPage() {
         <div className="max-w-4xl mx-auto">
           <div className="bg-white rounded-2xl shadow-xl border-2 border-saffron-100 p-8 md:p-12">
             <p className="text-lg text-gray-700 mb-6 leading-relaxed text-justify">
-              In an age of unprecedented material comfort yet persistent spiritual emptiness, we find ourselves 
-              searching for meaning. We have achieved technological marvels and economic prosperity, yet we lack 
-              the happiness and simplicity that brings true fulfillment. Modern society often feels disconnected 
-              from deeper purpose, leaving many of us yearning for guidance.
+              Aryavarta was founded on a simple conviction: that the wisdom preserved in India&apos;s ancient philosophical 
+              texts deserves a place in modern intellectual discourse. For too long, these profound teachings have been 
+              misunderstood as mere religious doctrine, when in truth they represent some of humanity&apos;s deepest inquiries 
+              into consciousness, ethics, and the art of living well.
             </p>
 
             <p className="text-lg text-gray-700 mb-6 leading-relaxed text-justify">
-              Aryavarta was born from the belief that our timeless scriptures hold the answers we seek. The ancient 
-              Indian philosophical tradition offers profound insights into human nature, consciousness, duty, and the 
-              pursuit of meaning—wisdom that is as relevant today as it was thousands of years ago. But this wisdom 
-              must be presented in a way that resonates with contemporary minds, free from religious dogma and accessible 
-              to all seekers.
+              Our approach is grounded in academic rigor and intellectual honesty. We study the original Sanskrit texts, 
+              consult scholarly interpretations across centuries, and present these ideas with the seriousness they deserve. 
+              This isn&apos;t self-help dressed in Sanskrit terms—it&apos;s genuine philosophical exploration that invites 
+              critical engagement, not blind acceptance.
             </p>
 
             <p className="text-lg text-gray-700 leading-relaxed text-justify">
-              We believe in spiritual and philosophical guidance that transcends religious boundaries. Our mission is 
-              to share the universal truths found in the Vedas, Upanishads, Bhagavad Gita, and other ancient texts—not 
-              as religious doctrine, but as philosophical inquiry into the nature of existence, consciousness, and human 
-              flourishing. Aryavarta is a space where critical thinking meets ancient wisdom, where modern seekers can 
-              find answers to timeless questions.
+              What makes Aryavarta different is our commitment to philosophy over preaching. We explore ideas like dharma, 
+              moksha, and the nature of the self not as religious imperatives, but as frameworks for understanding human 
+              experience. Whether you&apos;re a philosophy student, a spiritual seeker, or simply curious about ideas that have 
+              shaped civilizations, you&apos;ll find substantive content here—intellectually challenging yet accessible to all.
             </p>
           </div>
         </div>
@@ -84,9 +82,9 @@ export default function AboutPage() {
               </div>
               <h3 className="text-2xl font-bold mb-4 font-serif text-gray-900">Pure Philosophy</h3>
               <p className="text-gray-600 leading-relaxed">
-                We focus on philosophical inquiry and intellectual exploration, not religious doctrine. 
-                Every article is rigorously researched with 40+ academic citations, ensuring scholarly 
-                integrity while remaining accessible to all.
+                Every piece we publish undergoes thorough research, drawing from original Sanskrit texts, 
+                academic commentaries, and scholarly interpretations. We cite our sources extensively, 
+                ensuring intellectual honesty while making complex ideas understandable for modern readers.
               </p>
             </div>
 
@@ -95,11 +93,11 @@ export default function AboutPage() {
               <div className="w-16 h-16 bg-gradient-to-br from-vermillion-600 to-sandalwood-600 rounded-full flex items-center justify-center mb-6 shadow-md">
                 <Heart className="text-white" size={28} />
               </div>
-              <h3 className="text-2xl font-bold mb-4 font-serif text-gray-900">Spiritual Healing</h3>
+              <h3 className="text-2xl font-bold mb-4 font-serif text-gray-900">Practical Wisdom</h3>
               <p className="text-gray-600 leading-relaxed">
-                Ancient wisdom offers profound insights for modern mental health, mindfulness, and 
-                well-being. We translate timeless teachings into practical guidance for living a 
-                meaningful, balanced life in today's world.
+                Philosophy shouldn&apos;t remain abstract theory. We connect ancient teachings to contemporary 
+                challenges—navigating career pressures, finding purpose, managing relationships, and cultivating 
+                mental clarity in an age of constant distraction.
               </p>
             </div>
 
@@ -110,9 +108,9 @@ export default function AboutPage() {
               </div>
               <h3 className="text-2xl font-bold mb-4 font-serif text-gray-900">Beyond Division</h3>
               <p className="text-gray-600 leading-relaxed">
-                Truth transcends religious labels. Whether you're Hindu, Buddhist, Christian, Muslim, 
-                atheist, or simply curious—these philosophical insights are universal. We seek wisdom, 
-                not conversion; understanding, not dogma.
+                These teachings belong to humanity, not to any single tradition. We welcome readers from every 
+                background—philosophers, theologians, scientists, artists, skeptics—anyone seeking deeper 
+                understanding through intellectual inquiry rather than sectarian boundaries.
               </p>
             </div>
           </div>
@@ -128,34 +126,34 @@ export default function AboutPage() {
           
           <div className="grid md:grid-cols-2 gap-8">
             <div className="bg-white rounded-xl p-6 shadow-md border border-saffron-100">
-              <h3 className="text-xl font-bold mb-3 text-saffron-700 font-serif">Academic Rigor</h3>
+              <h3 className="text-xl font-bold mb-3 text-saffron-700 font-serif">Scholarly Foundation</h3>
               <p className="text-gray-600">
-                Every article includes 40+ citations from scholarly sources, ensuring accuracy and depth 
-                in our exploration of ancient texts.
+                We consult primary texts, classical commentaries, and contemporary academic research to ensure 
+                our interpretations are well-grounded and intellectually responsible.
               </p>
             </div>
 
             <div className="bg-white rounded-xl p-6 shadow-md border border-vermillion-100">
-              <h3 className="text-xl font-bold mb-3 text-vermillion-700 font-serif">Accessible Language</h3>
+              <h3 className="text-xl font-bold mb-3 text-vermillion-700 font-serif">Clear Communication</h3>
               <p className="text-gray-600">
-                Complex philosophical concepts are explained in clear, modern language that anyone can 
-                understand and apply to their life.
+                Sanskrit philosophy can be dense, but it doesn&apos;t have to be inaccessible. We explain 
+                complex ideas in straightforward language without sacrificing nuance or depth.
               </p>
             </div>
 
             <div className="bg-white rounded-xl p-6 shadow-md border border-sandalwood-100">
-              <h3 className="text-xl font-bold mb-3 text-sandalwood-700 font-serif">Critical Thinking</h3>
+              <h3 className="text-xl font-bold mb-3 text-sandalwood-700 font-serif">Intellectual Honesty</h3>
               <p className="text-gray-600">
-                We encourage questioning, reflection, and personal interpretation rather than blind 
-                acceptance of tradition.
+                We present multiple interpretations, acknowledge scholarly debates, and encourage readers 
+                to engage critically rather than accept our views uncritically.
               </p>
             </div>
 
             <div className="bg-white rounded-xl p-6 shadow-md border border-sacred-100">
-              <h3 className="text-xl font-bold mb-3 text-sacred-700 font-serif">Modern Relevance</h3>
+              <h3 className="text-xl font-bold mb-3 text-sacred-700 font-serif">Contemporary Context</h3>
               <p className="text-gray-600">
-                Ancient wisdom is connected to contemporary issues, from mental health to ethics, 
-                showing timeless truths in modern contexts.
+                Ancient questions about consciousness, morality, and meaning remain urgently relevant. 
+                We show how these timeless inquiries speak to modern life.
               </p>
             </div>
           </div>
