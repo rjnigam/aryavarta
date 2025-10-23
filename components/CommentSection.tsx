@@ -4,7 +4,11 @@ import { useState } from 'react';
 import { MessageCircle, Send, BookOpen, Lock } from 'lucide-react';
 import Link from 'next/link';
 
-export function CommentSection() {
+interface CommentSectionProps {
+  author: string;
+}
+
+export function CommentSection({ author }: CommentSectionProps) {
   const [comment, setComment] = useState('');
   const [comments, setComments] = useState<Array<{ username: string; comment: string; date: string }>>([]);
   // In Phase 2, this will check real authentication status
@@ -39,10 +43,10 @@ export function CommentSection() {
           </div>
           <div className="flex-1">
             <h3 className="text-xl font-bold text-gray-900 mb-2 font-serif">
-              <span className="font-devanagari">आर्यवर्त</span> • Aryavarta
+              {author}
             </h3>
-            <p className="text-gray-700 leading-relaxed font-serif italic">
-              Ancient Philosophy for Modern Minds
+            <p className="text-gray-700 leading-relaxed text-sm">
+              <span className="font-devanagari">आर्यवर्त</span> • Aryavarta — Ancient Philosophy for Modern Minds
             </p>
           </div>
         </div>

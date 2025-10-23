@@ -132,7 +132,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
         {/* Comment Section */}
         <div className="mt-12">
-          <CommentSection />
+          <CommentSection author={article.author} />
         </div>
       </article>
 

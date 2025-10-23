@@ -4,7 +4,7 @@ excerpt: "Exploring how selective interpretation, colonial influence, and Gandhi
 date: "2025-10-22"
 readTime: "12 min read"
 source: "Vedas, Manusmriti, Bhagavad Gita"
-author: "Aryavarta"
+author: "Rajath Nigam"
 tags: ["Ahimsa", "Dharma", "Self-Defense", "Kshatriya Dharma", "Colonial History"]
 ---
 
