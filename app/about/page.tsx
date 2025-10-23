@@ -40,19 +40,6 @@ export default function AboutPage() {
       <section className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
           <div className="bg-white rounded-2xl shadow-xl border-2 border-saffron-100 p-8 md:p-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-6 font-serif">
-              आर्यावर्त • Āryāvarta • Land of the Noble People
-            </h2>
-            
-            <p className="text-lg text-gray-700 mb-6 leading-relaxed text-justify">
-              <span className="font-devanagari text-xl text-saffron-700 block mb-4 text-center italic">
-                "आर्याणां वर्ते देशः आर्यावर्तः"
-              </span>
-              <span className="block text-center text-gray-600 mb-6 italic">
-                — The land where noble souls dwell
-              </span>
-            </p>
-
             <p className="text-lg text-gray-700 mb-6 leading-relaxed text-justify">
               In an age of unprecedented material comfort yet persistent spiritual emptiness, we find ourselves 
               searching for meaning. We have achieved technological marvels and economic prosperity, yet we lack 
