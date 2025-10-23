@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { Resend } from 'resend';
+import { usernamePool } from '@/lib/usernamePool';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-
-// Import username pool
-const usernamePool = require('@/lib/usernamePool');
 
 /**
  * Get a unique username from the pool
