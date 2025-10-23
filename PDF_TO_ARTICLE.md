@@ -2,7 +2,7 @@
 
 ## 🎉 You Can Now Paste PDFs and Auto-Publish!
 
-Your Gurukul platform now has **automated PDF-to-article conversion**!
+Your Aryavarta platform now has **automated PDF-to-article conversion**!
 
 ---
 
@@ -149,7 +149,7 @@ content/pdfs/
 ## 📂 Folder Structure
 
 ```
-Gurukul/
+Aryavarta/
 ├── content/
 │   ├── pdfs/                    ← PUT PDFs HERE
 │   │   ├── your-article.pdf
@@ -227,7 +227,7 @@ source: "Bhagavad Gita"
 readTime: "5 min"
 date: "2025-10-22"
 excerpt: "Exploring the concept of dharma..."
-author: "Gurukul Editorial Team"
+author: "Aryavarta Editorial Team"
 tags: ["Dharma", "Philosophy"]
 ---
 

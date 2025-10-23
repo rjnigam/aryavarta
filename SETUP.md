@@ -1,6 +1,6 @@
 # 🚀 Quick Setup Guide
 
-## You're almost ready to launch Gurukul!
+## You're almost ready to launch Aryavarta!
 
 The MVP is now built and running at: **http://localhost:3000**
 

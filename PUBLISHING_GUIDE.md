@@ -1,6 +1,6 @@
 # 📝 Publishing Articles - Simple Guide
 
-Your Gurukul platform now supports **Markdown-based articles**! This makes publishing as easy as writing a text file.
+Your Aryavarta platform now supports **Markdown-based articles**! This makes publishing as easy as writing a text file.
 
 ## 🚀 Quick Start: Publish Your First Article
 
@@ -20,7 +20,7 @@ Your Gurukul platform now supports **Markdown-based articles**! This makes publi
    readTime: "5 min"
    date: "2025-10-22"
    excerpt: "Brief description that appears in previews..."
-   author: "Gurukul Editorial Team"
+   author: "Aryavarta Editorial Team"
    tags: ["Bhagavad Gita", "Philosophy", "Modern Life"]
    ---
 
@@ -43,7 +43,7 @@ Your Gurukul platform now supports **Markdown-based articles**! This makes publi
 | `readTime` | ✅ Yes | Estimated reading time | "5 min", "10 min" |
 | `date` | ✅ Yes | Publication date | "2025-10-22" (YYYY-MM-DD) |
 | `excerpt` | ✅ Yes | Preview text | Brief 1-2 sentence summary |
-| `author` | ✅ Yes | Author name | "Gurukul Editorial Team" |
+| `author` | ✅ Yes | Author name | "Aryavarta Editorial Team" |
 | `tags` | ✅ Yes | Array of tags | ["Bhagavad Gita", "Career"] |
 
 ---
@@ -271,7 +271,7 @@ source: "Bhagavad Gita"
 readTime: "7 min"
 date: "2025-10-22"
 excerpt: "One or two sentences that hook the reader and explain what they'll learn..."
-author: "Gurukul Editorial Team"
+author: "Aryavarta Editorial Team"
 tags: ["Tag1", "Tag2", "Tag3"]
 ---
 

@@ -23,7 +23,7 @@ Before deploying, ensure you have:
 ### 1. Initialize Git Repository
 
 ```bash
-cd /Users/rajathnigam/Gurukul
+cd /Users/rajathnigam/Aryavarta
 
 # Initialize Git
 git init

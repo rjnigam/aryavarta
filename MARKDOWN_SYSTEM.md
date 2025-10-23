@@ -1,6 +1,6 @@
 # 🎉 MARKDOWN PUBLISHING SYSTEM - COMPLETE!
 
-Your Gurukul platform now has a **professional article publishing system**! No database needed, no complex admin panel—just simple markdown files.
+Your Aryavarta platform now has a **professional article publishing system**! No database needed, no complex admin panel—just simple markdown files.
 
 ---
 
@@ -99,7 +99,7 @@ git add . && git commit -m "New article" && git push
 ## 📂 File Structure
 
 ```
-Gurukul/
+Aryavarta/
 ├── content/
 │   └── articles/
 │       ├── dharma-modern-work.md     ✅ Sample 1
@@ -162,7 +162,7 @@ source: "Bhagavad Gita | Upanishads | Ramayana | etc."
 readTime: "5 min"
 date: "2025-10-22"  # YYYY-MM-DD
 excerpt: "One sentence that hooks the reader..."
-author: "Gurukul Editorial Team"
+author: "Aryavarta Editorial Team"
 tags: ["Tag1", "Tag2", "Tag3"]
 ---
 ```

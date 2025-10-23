@@ -12,7 +12,7 @@
 #### 1. **Beautiful Landing Page**
 - Hero section with compelling mission statement
 - Stats showcase (5000+ years, 4 texts, weekly, free)
-- "Why Gurukul?" section with three value pillars
+- "Why Aryavarta?" section with three value pillars
 - Mission statement highlighting cultural significance
 - Article previews with hover effects
 - Newsletter signup CTAs (top and bottom)
@@ -81,7 +81,7 @@
 ## 📁 Project Structure
 
 ```
-Gurukul/
+Aryavarta/
 ├── app/
 │   ├── api/subscribe/          # Newsletter API
 │   ├── articles/
@@ -206,7 +206,7 @@ colors: {
 ```
 
 ### Brand Name
-Search & replace "Gurukul" (but it's a great name! 😊)
+Search & replace "Aryavarta" (but it's a great name! 😊)
 
 ### Typography
 Change fonts in `app/globals.css`

@@ -128,7 +128,7 @@ source: "${source}"
 readTime: "${readTime}"
 date: "${today}"
 excerpt: "${excerpt}"
-author: "Gurukul Editorial Team"
+author: "Aryavarta Editorial Team"
 tags: [${tags.split(',').map(t => `"${t.trim()}"`).join(', ')}]
 ---
 

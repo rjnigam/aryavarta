@@ -1,6 +1,6 @@
 # 📝 Content Creation Guide
 
-A guide for writing high-quality Gurukul articles that blend ancient wisdom with modern relevance.
+A guide for writing high-quality Aryavarta articles that blend ancient wisdom with modern relevance.
 
 ## Article Philosophy
 

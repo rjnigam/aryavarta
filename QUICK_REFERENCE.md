@@ -10,7 +10,7 @@ Fast reference for common tasks in the Aryavarta project.
 ```bash
 # Clone and install
 git clone <repo-url>
-cd Gurukul
+cd Aryavarta
 npm install
 
 # Set up environment

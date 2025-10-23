@@ -101,7 +101,7 @@ Aryavarta addresses the spiritual gap in modern society by providing philosophic
 ## � Project Structure
 
 ```
-Gurukul/
+Aryavarta/
 ├── app/
 │   ├── page.tsx                    # Homepage with mission & articles
 │   ├── layout.tsx                  # Root layout with fonts & metadata
@@ -197,7 +197,7 @@ Gurukul/
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd Gurukul
+   cd Aryavarta
    ```
 
 2. **Install dependencies**

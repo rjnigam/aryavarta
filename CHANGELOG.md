@@ -123,7 +123,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Comprehensive error handling
 
 ### Changed
-- **Rebranded from "Gurukul" to "Aryavarta"**
+- **Rebranded from "Aryavarta" to "Aryavarta"**
   - New domain: arya-varta.in
   - Updated all branding references
   - New mission statement and messaging
@@ -138,7 +138,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Improved visual hierarchy
 
 - **Newsletter Signup Button**
-  - Changed from "Subscribe to Gurukul" to "Subscribe to Aryavarta"
+  - Changed from "Subscribe to Aryavarta" to "Subscribe to Aryavarta"
   - Updated success message branding
 
 - **Email Configuration**

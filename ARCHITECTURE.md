@@ -876,7 +876,7 @@ export function onCLS(metric) {
 ```bash
 # 1. Clone repository
 git clone <repo-url>
-cd Gurukul
+cd Aryavarta
 
 # 2. Install dependencies
 npm install

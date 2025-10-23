@@ -1,4 +1,4 @@
-# 🎯 Gurukul - Your Ancient Wisdom Newsletter Platform
+# 🎯 Aryavarta - Your Ancient Wisdom Newsletter Platform
 
 ## 🚀 **STATUS: MVP COMPLETE & RUNNING!**
 

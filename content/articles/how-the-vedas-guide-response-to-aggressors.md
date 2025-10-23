@@ -5,7 +5,7 @@ source: "Vedas, Bhagavad Gita, Rig Veda"
 readTime: "6 min"
 date: "2025-10-22"
 excerpt: "The Vedic scriptures provide clear guidance on responding to aggressors, establishing a sophisticated ethical framework that balances ahimsa (non-violence) with the duty to protect dharma (righteousness)."
-author: "Gurukul Editorial Team"
+author: "Aryavarta Editorial Team"
 tags: ["Vedas", "Ethics", "Dharma", "Philosophy", "Bhagavad Gita"]
 ---
 

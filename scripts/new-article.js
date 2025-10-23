@@ -35,7 +35,7 @@ source: "Bhagavad Gita"
 readTime: "5 min"
 date: "${today}"
 excerpt: "Brief description that appears in previews. Update this with your actual excerpt."
-author: "Gurukul Editorial Team"
+author: "Aryavarta Editorial Team"
 tags: ["Tag1", "Tag2", "Tag3"]
 ---
 
