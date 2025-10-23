@@ -31,17 +31,18 @@ export function CommentSection() {
   return (
     <div className="mt-16 pt-8 border-t-2 border-saffron-200">
       {/* Author Bio Section */}
-      <div className="mb-12 bg-gradient-to-br from-saffron-50 to-sandalwood-50 rounded-xl p-8 border-2 border-saffron-200">
+            {/* Author Bio */}
+      <div className="bg-gradient-to-br from-saffron-50 via-white to-sandalwood-50 rounded-xl p-6 border-2 border-saffron-200 mb-12">
         <div className="flex items-start gap-4">
           <div className="w-16 h-16 bg-gradient-to-br from-saffron-600 to-vermillion-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
             <BookOpen className="text-white" size={28} />
           </div>
           <div className="flex-1">
-            <h3 className="text-xl font-bold text-gray-900 mb-2 font-serif">Aryavarta</h3>
-            <p className="text-gray-700 leading-relaxed">
-              Dedicated to making ancient Indian wisdom accessible and relevant to modern life. Each article is thoroughly 
-              researched from authentic <span className="font-devanagari">श्रुति</span> and <span className="font-devanagari">स्मृति</span> sources 
-              with deep respect for our <span className="font-devanagari">सनातन परंपरा</span> (eternal tradition).
+            <h3 className="text-xl font-bold text-gray-900 mb-2 font-serif">
+              <span className="font-devanagari">आर्यवर्त</span> • Aryavarta
+            </h3>
+            <p className="text-gray-700 leading-relaxed font-serif italic">
+              Ancient Philosophy for Modern Minds
             </p>
           </div>
         </div>
