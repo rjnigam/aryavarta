@@ -125,32 +125,6 @@ export default function SubscribePage() {
         </div>
       </section>
 
-      {/* Testimonial / Promise Section */}
-      <section className="container mx-auto px-4 py-16 bg-gradient-to-r from-saffron-50 to-sandalwood-50">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-6 font-serif text-gray-900">
-            Our Promise
-          </h2>
-          <div className="space-y-4 text-lg text-gray-700">
-            <p>
-              ✓ <strong>100% Free</strong> - Always has been, always will be
-            </p>
-            <p>
-              ✓ <strong>No Spam</strong> - Only weekly insights, nothing more
-            </p>
-            <p>
-              ✓ <strong>Unsubscribe Anytime</strong> - One click, no questions asked
-            </p>
-            <p>
-              ✓ <strong>Privacy Respected</strong> - Your email is never shared or sold
-            </p>
-            <p>
-              ✓ <strong>Quality Content</strong> - Researched, cited, and thoughtfully written
-            </p>
-          </div>
-        </div>
-      </section>
-
       {/* Stats Section */}
       <section className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
