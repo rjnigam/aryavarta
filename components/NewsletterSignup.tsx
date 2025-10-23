@@ -49,6 +49,10 @@ export function NewsletterSignup({ variant = 'light' }: NewsletterSignupProps) {
         throw new Error(error.message || 'Something went wrong');
       }
 
+      // Store subscription status in localStorage
+      localStorage.setItem('aryavarta_subscribed', 'true');
+      localStorage.setItem('aryavarta_subscribed_date', new Date().toISOString());
+
       setIsSuccess(true);
       reset();
       

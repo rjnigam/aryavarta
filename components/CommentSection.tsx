@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { MessageCircle, Send, BookOpen, Lock, MapPin } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { MessageCircle, Send, BookOpen, Lock, MapPin, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -14,8 +14,15 @@ interface CommentSectionProps {
 export function CommentSection({ author, authorLocation = 'Texas, United States', authorImage = '/authors/rajath-nigam.jpg' }: CommentSectionProps) {
   const [comment, setComment] = useState('');
   const [comments, setComments] = useState<Array<{ username: string; comment: string; date: string }>>([]);
-  // In Phase 2, this will check real authentication status
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  // In Phase 2, this will be replaced with real authentication
   const [isAuthenticated] = useState(false);
+
+  // Check subscription status on mount
+  useEffect(() => {
+    const subscriptionStatus = localStorage.getItem('aryavarta_subscribed');
+    setIsSubscribed(subscriptionStatus === 'true');
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,7 +101,7 @@ export function CommentSection({ author, authorLocation = 'Texas, United States'
             Note: Comments are currently stored locally and will be integrated with a database soon.
           </p>
         </form>
-      ) : (
+      ) : !isSubscribed ? (
         <div className="bg-gradient-to-br from-saffron-50 via-white to-sandalwood-50 rounded-xl p-8 border-2 border-saffron-200 mb-8 text-center">
           <div className="w-16 h-16 bg-gradient-to-br from-saffron-100 to-vermillion-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Lock className="text-saffron-700" size={28} />
@@ -112,6 +119,22 @@ export function CommentSection({ author, authorLocation = 'Texas, United States'
           >
             Subscribe to Aryavarta
           </Link>
+        </div>
+      ) : (
+        <div className="bg-gradient-to-br from-saffron-50 via-white to-sandalwood-50 rounded-xl p-8 border-2 border-saffron-200 mb-8 text-center">
+          <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <CheckCircle className="text-green-700" size={28} />
+          </div>
+          <h4 className="text-xl font-bold text-gray-900 mb-3 font-serif">
+            Thanks for Subscribing! 🎉
+          </h4>
+          <p className="text-gray-600 mb-4 max-w-lg mx-auto">
+            Comments are coming soon! We're working on integrating user authentication 
+            so you can join the discussion with your unique username.
+          </p>
+          <p className="text-sm text-gray-500">
+            You'll be notified via email when commenting goes live.
+          </p>
         </div>
       )}
 
