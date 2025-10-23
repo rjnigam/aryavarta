@@ -20,6 +20,7 @@ interface NewsletterSignupProps {
 export function NewsletterSignup({ variant = 'light' }: NewsletterSignupProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [username, setUsername] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState('');
 
   const {
@@ -49,10 +50,14 @@ export function NewsletterSignup({ variant = 'light' }: NewsletterSignupProps) {
         throw new Error(error.message || 'Something went wrong');
       }
 
-      // Store subscription status in localStorage
+      const result = await response.json();
+      
+      // Store subscription status and username in localStorage
       localStorage.setItem('aryavarta_subscribed', 'true');
+      localStorage.setItem('aryavarta_username', result.username);
       localStorage.setItem('aryavarta_subscribed_date', new Date().toISOString());
 
+      setUsername(result.username);
       setIsSuccess(true);
       reset();
       
@@ -71,16 +76,34 @@ export function NewsletterSignup({ variant = 'light' }: NewsletterSignupProps) {
 
   if (isSuccess) {
     return (
-      <div className={`flex items-center gap-3 p-4 rounded-lg ${
+      <div className={`rounded-lg p-6 ${
         isDark ? 'bg-white/10 text-white' : 'bg-green-50 text-green-800'
       }`}>
-        <CheckCircle className={isDark ? 'text-white' : 'text-green-600'} size={24} />
-        <div>
-          <p className="font-semibold">Welcome aboard! 🎉</p>
-          <p className={`text-sm ${isDark ? 'text-white/80' : 'text-green-700'}`}>
-            Check your email to confirm your subscription.
-          </p>
+        <div className="flex items-start gap-3 mb-4">
+          <CheckCircle className={isDark ? 'text-white flex-shrink-0' : 'text-green-600 flex-shrink-0'} size={24} />
+          <div>
+            <p className="font-semibold text-lg">Welcome aboard! 🎉</p>
+            <p className={`text-sm ${isDark ? 'text-white/80' : 'text-green-700'} mt-1`}>
+              Check your email to confirm your subscription.
+            </p>
+          </div>
         </div>
+        
+        {username && (
+          <div className={`mt-4 p-4 rounded-lg border-2 ${
+            isDark ? 'bg-white/5 border-white/20' : 'bg-white border-green-300'
+          }`}>
+            <p className={`text-sm font-semibold mb-2 ${isDark ? 'text-white' : 'text-green-900'}`}>
+              Your Username:
+            </p>
+            <p className={`font-mono text-xl font-bold ${isDark ? 'text-saffron-300' : 'text-saffron-700'}`}>
+              {username}
+            </p>
+            <p className={`text-xs mt-2 ${isDark ? 'text-white/70' : 'text-green-700'}`}>
+              Save this — you'll use it to comment on articles soon!
+            </p>
+          </div>
+        )}
       </div>
     );
   }

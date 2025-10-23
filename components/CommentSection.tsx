@@ -15,13 +15,18 @@ export function CommentSection({ author, authorLocation = 'Texas, United States'
   const [comment, setComment] = useState('');
   const [comments, setComments] = useState<Array<{ username: string; comment: string; date: string }>>([]);
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [username, setUsername] = useState<string>('');
   // In Phase 2, this will be replaced with real authentication
   const [isAuthenticated] = useState(false);
 
   // Check subscription status on mount
   useEffect(() => {
     const subscriptionStatus = localStorage.getItem('aryavarta_subscribed');
+    const storedUsername = localStorage.getItem('aryavarta_username');
     setIsSubscribed(subscriptionStatus === 'true');
+    if (storedUsername) {
+      setUsername(storedUsername);
+    }
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -128,6 +133,15 @@ export function CommentSection({ author, authorLocation = 'Texas, United States'
           <h4 className="text-xl font-bold text-gray-900 mb-3 font-serif">
             Thanks for Subscribing! 🎉
           </h4>
+          
+          {username && (
+            <div className="bg-white rounded-lg p-4 mb-4 max-w-md mx-auto border-2 border-green-200">
+              <p className="text-sm text-gray-600 mb-2">Your Username:</p>
+              <p className="text-2xl font-bold font-mono text-saffron-700">{username}</p>
+              <p className="text-xs text-gray-500 mt-2">You'll use this to comment once the feature goes live!</p>
+            </div>
+          )}
+          
           <p className="text-gray-600 mb-4 max-w-lg mx-auto">
             Comments are coming soon! We're working on integrating user authentication 
             so you can join the discussion with your unique username.

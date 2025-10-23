@@ -28,16 +28,29 @@ export async function POST(request: NextRequest) {
     // Check if email already exists
     const { data: existing } = await supabase
       .from('subscribers')
-      .select('email')
+      .select('email, username')
       .eq('email', email)
       .single();
 
     if (existing) {
       return NextResponse.json(
-        { message: 'This email is already subscribed!' },
+        { 
+          message: 'This email is already subscribed!',
+          username: existing.username 
+        },
         { status: 400 }
       );
     }
+
+    // Generate unique username
+    const generateUsername = (name: string, email: string) => {
+      // Take first name and add random numbers
+      const firstName = name.split(' ')[0].toLowerCase();
+      const randomNum = Math.floor(Math.random() * 9000) + 1000; // 4-digit number
+      return `${firstName}${randomNum}`;
+    };
+
+    const username = generateUsername(name, email);
 
     // Insert new subscriber
     const { data: newSubscriber, error: insertError } = await supabase
@@ -46,6 +59,7 @@ export async function POST(request: NextRequest) {
         {
           email,
           name,
+          username,
           is_active: true,
         },
       ])
@@ -73,6 +87,15 @@ export async function POST(request: NextRequest) {
               
               <div style="border-top: 3px solid #c2410c; padding-top: 20px;">
                 <h2 style="color: #1f2937; font-size: 24px;">Welcome, ${name}! 🙏</h2>
+                
+                <div style="background: #f0fdf4; border: 2px solid #86efac; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                  <p style="color: #166534; font-size: 18px; font-weight: 600; margin: 0 0 10px 0;">
+                    Your Username: <span style="color: #c2410c; font-family: monospace; font-size: 20px;">${username}</span>
+                  </p>
+                  <p style="color: #166534; font-size: 14px; margin: 0;">
+                    Save this username — you'll use it to comment on articles once our discussion feature goes live!
+                  </p>
+                </div>
                 
                 <p style="color: #4b5563; line-height: 1.8; font-size: 16px;">
                   Thank you for joining our journey to rediscover the timeless wisdom of ancient India.
@@ -123,7 +146,8 @@ export async function POST(request: NextRequest) {
       { 
         message: 'Successfully subscribed! Check your email for a welcome message.',
         email,
-        name 
+        name,
+        username
       },
       { status: 200 }
     );
