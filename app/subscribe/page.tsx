@@ -1,5 +1,6 @@
 import { Header } from '@/components/Header';
 import { NewsletterSignup } from '@/components/NewsletterSignup';
+import { ConditionalFooter } from '@/components/ConditionalFooter';
 import { Mail, Sparkles, BookOpen, Heart, Zap } from 'lucide-react';
 import Link from 'next/link';
 
@@ -213,28 +214,7 @@ export default function SubscribePage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 text-gray-300 py-12 mt-16">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="mb-6">
-              <h3 className="text-2xl font-bold text-white mb-2 font-serif">आर्यवर्त</h3>
-              <p className="text-sm">Ancient Philosophy for Modern Minds</p>
-            </div>
-            <p className="text-sm mb-6">
-              Sharing timeless wisdom from the Vedas, Upanishads, and Bhagavad Gita
-            </p>
-            <div className="flex justify-center gap-8 mb-6">
-              <Link href="/" className="hover:text-saffron-400 transition">Home</Link>
-              <Link href="/about" className="hover:text-saffron-400 transition">About</Link>
-              <Link href="/articles" className="hover:text-saffron-400 transition">Articles</Link>
-              <Link href="/subscribe" className="hover:text-saffron-400 transition">Subscribe</Link>
-            </div>
-            <p className="text-xs text-gray-500">
-              © 2025 Aryavarta. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <ConditionalFooter />
     </main>
   );
 }

@@ -5,6 +5,7 @@ import { getAllArticleSlugs, getArticleBySlug } from '@/lib/articles';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { NewsletterSignup } from '@/components/NewsletterSignup';
 import { CommentSection } from '@/components/CommentSection';
+import { ArticleViewTracker } from '@/components/ArticleViewTracker';
 
 export async function generateStaticParams() {
   const slugs = getAllArticleSlugs();
@@ -45,6 +46,9 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-saffron-50 via-white to-sandalwood-50">
+      {/* Track article view for authenticated users */}
+      <ArticleViewTracker articleSlug={slug} />
+      
       {/* Decorative top border */}
       <div className="h-2 bg-gradient-to-r from-vermillion-600 via-saffron-600 to-sandalwood-600"></div>
       
@@ -132,7 +136,10 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
         {/* Comment Section */}
         <div className="mt-12">
-          <CommentSection author={article.author} />
+          <CommentSection 
+            articleSlug={slug} 
+            author={article.author} 
+          />
         </div>
       </article>
 

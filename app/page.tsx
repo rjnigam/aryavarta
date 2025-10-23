@@ -5,6 +5,7 @@ import { Header } from '@/components/Header';
 import { getRecentArticles } from '@/lib/articles';
 import { PageTransition } from '@/components/PageTransition';
 import { ScrollReveal } from '@/components/ScrollReveal';
+import { PersonalizedHero } from '@/components/PersonalizedHero';
 
 export default function Home() {
   const articles = getRecentArticles(6);
@@ -16,43 +17,8 @@ export default function Home() {
         
         <Header />
 
-        {/* Hero Section with Mandala Pattern */}
-        <section className="container mx-auto px-4 py-20 md:py-32 bg-mandala">
-          <div className="max-w-4xl mx-auto text-center">
-            <ScrollReveal delay={0.1}>
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-saffron-100 to-sandalwood-100 text-saffron-800 px-5 py-2 rounded-full mb-8 text-sm font-semibold border border-saffron-200 shadow-sm">
-                <Sparkles size={16} className="text-saffron-600" />
-                <span>सनातन ज्ञान • Ancient Wisdom for Modern Times</span>
-              </div>
-            </ScrollReveal>
-            
-            <ScrollReveal delay={0.2}>
-              <h2 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight font-serif">
-                Ancient Philosophy for{' '}
-                <span className="bg-gradient-to-r from-saffron-700 via-vermillion-700 to-sandalwood-700 bg-clip-text text-transparent">
-                  Modern Minds
-                </span>
-              </h2>
-            </ScrollReveal>
-            
-            <ScrollReveal delay={0.3}>
-              <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed">
-                In an age of unprecedented comfort yet persistent emptiness, rediscover the philosophical wisdom 
-                that helps us lead meaningful lives — free from dogma, rich in insight.
-              </p>
-            </ScrollReveal>
-
-            <ScrollReveal delay={0.4}>
-              <div className="max-w-md mx-auto" id="subscribe">
-                <NewsletterSignup />
-              </div>
-
-              <p className="text-sm text-gray-500 mt-4">
-                Join our community of seekers on this sacred journey
-              </p>
-            </ScrollReveal>
-          </div>
-        </section>
+        {/* Personalized Hero Section */}
+        <PersonalizedHero />
 
       {/* Stats Section with Traditional Design */}
       <section className="container mx-auto px-4 py-16">
