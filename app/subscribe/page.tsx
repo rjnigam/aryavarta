@@ -75,7 +75,7 @@ export default function SubscribePage() {
               <div>
                 <h3 className="font-bold text-lg mb-2 text-gray-900 font-serif">Weekly Articles</h3>
                 <p className="text-gray-600 text-sm">
-                  In-depth explorations of Vedic wisdom, Upanishadic philosophy, and Bhagavad Gita teachings
+                  In-depth explorations of ancient Indian philosophy and timeless wisdom
                 </p>
               </div>
             </div>
@@ -117,7 +117,7 @@ export default function SubscribePage() {
               <div>
                 <h3 className="font-bold text-lg mb-2 text-gray-900 font-serif">Academic Rigor</h3>
                 <p className="text-gray-600 text-sm">
-                  40+ citations per article from scholarly sources, ensuring depth and accuracy
+                  Thoroughly researched with scholarly citations, ensuring depth and accuracy
                 </p>
               </div>
             </div>
@@ -128,16 +128,11 @@ export default function SubscribePage() {
       {/* Stats Section */}
       <section className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-8 text-center">
+          <div className="grid md:grid-cols-2 gap-8 text-center max-w-3xl mx-auto">
             <div className="bg-gradient-to-br from-saffron-100 to-vermillion-100 rounded-xl p-8 shadow-lg border border-saffron-200">
               <div className="text-5xl font-bold text-saffron-700 mb-2 font-serif">5000+</div>
               <div className="text-gray-700 font-semibold">Years of Wisdom</div>
-              <p className="text-sm text-gray-600 mt-2">From the ancient Vedas to modern insights</p>
-            </div>
-            <div className="bg-gradient-to-br from-vermillion-100 to-sandalwood-100 rounded-xl p-8 shadow-lg border border-vermillion-200">
-              <div className="text-5xl font-bold text-vermillion-700 mb-2 font-serif">40+</div>
-              <div className="text-gray-700 font-semibold">Citations per Article</div>
-              <p className="text-sm text-gray-600 mt-2">Academic rigor meets accessibility</p>
+              <p className="text-sm text-gray-600 mt-2">From ancient Indian knowledge to modern insights</p>
             </div>
             <div className="bg-gradient-to-br from-sandalwood-100 to-saffron-100 rounded-xl p-8 shadow-lg border border-sandalwood-200">
               <div className="text-5xl font-bold text-sandalwood-700 mb-2 font-serif">Weekly</div>
