@@ -15,6 +15,9 @@ interface Comment {
   likeCount?: number;
   dislikeCount?: number;
   userReaction?: 'like' | 'dislike' | null;
+  is_hidden?: boolean;
+  hidden_reason?: string | null;
+  moderation_status?: 'visible' | 'auto_hidden' | 'manual_hidden' | 'resolved';
 }
 
 interface CommentSectionProps {
@@ -65,6 +68,12 @@ function CommentWithReplies({
   const isOwnComment = userEmail === comment.email;
   const hasReplies = comment.replies && comment.replies.length > 0;
   const isExpanded = expandedThreads.has(comment.id);
+  const moderationStatus = comment.moderation_status;
+  const isHidden =
+    Boolean(comment.is_hidden) ||
+    moderationStatus === 'auto_hidden' ||
+    moderationStatus === 'manual_hidden';
+  const hiddenReason = comment.hidden_reason;
 
   return (
     <div className={`${marginLeft} ${depth > 0 ? 'mt-4' : ''}`}>
@@ -75,12 +84,23 @@ function CommentWithReplies({
             <p className="text-sm text-gray-500">{formatDate(comment.created_at)}</p>
           </div>
         </div>
-        <p className="text-gray-700 leading-relaxed whitespace-pre-wrap mb-4">{comment.comment_text}</p>
+        {isHidden ? (
+          <div className="text-sm text-gray-600 bg-saffron-50 border border-saffron-200 rounded-lg px-4 py-3 mb-4">
+            <p className="font-semibold text-saffron-800">
+              This comment is temporarily hidden pending moderator review.
+            </p>
+            {hiddenReason && (
+              <p className="mt-1 text-gray-600">Reason: {hiddenReason}</p>
+            )}
+          </div>
+        ) : (
+          <p className="text-gray-700 leading-relaxed whitespace-pre-wrap mb-4">{comment.comment_text}</p>
+        )}
         
         {/* Reaction and Reply Buttons */}
         <div className="flex items-center gap-4">
           {/* Like/Dislike Buttons */}
-          {isAuthenticated && !isOwnComment && (
+          {isAuthenticated && !isOwnComment && !isHidden && (
             <div className="flex items-center gap-3">
               <button
                 onClick={() => onReaction(comment.id, 'like', comment.email)}
@@ -110,7 +130,8 @@ function CommentWithReplies({
           )}
           
           {/* Show counts only for non-authenticated users or own comments */}
-          {(!isAuthenticated || isOwnComment) && (comment.likeCount !== undefined || comment.dislikeCount !== undefined) && (
+          {(!isAuthenticated || isOwnComment || isHidden) &&
+            (comment.likeCount !== undefined || comment.dislikeCount !== undefined) && (
             <div className="flex items-center gap-3 text-sm text-gray-500">
               <span className="inline-flex items-center gap-1.5">
                 <ThumbsUp size={16} />
@@ -124,7 +145,7 @@ function CommentWithReplies({
           )}
           
           {/* Reply Button */}
-          {isAuthenticated && !isReplying && (
+          {isAuthenticated && !isReplying && !isHidden && (
             <button
               onClick={() => onReply(comment.id)}
               className="inline-flex items-center gap-1.5 text-sm text-saffron-700 hover:text-saffron-900 font-semibold transition-colors"
@@ -412,6 +433,53 @@ export function CommentSection({ articleSlug, author, authorLocation = 'Texas, U
     });
   };
 
+  const applyServerReactionState = (
+    comments: Comment[],
+    commentId: string,
+    state: {
+      likeCount?: number;
+      dislikeCount?: number;
+      moderation?: {
+        isHidden: boolean;
+        status?: Comment['moderation_status'];
+        hiddenReason?: string | null;
+      };
+    }
+  ): Comment[] => {
+    return comments.map(comment => {
+      if (comment.id === commentId) {
+        const nextStatus =
+          state.moderation && state.moderation.status !== undefined
+            ? state.moderation.status
+            : comment.moderation_status;
+
+        const nextHiddenReason =
+          state.moderation && state.moderation.hiddenReason !== undefined
+            ? state.moderation.hiddenReason
+            : comment.hidden_reason;
+
+        return {
+          ...comment,
+          likeCount: typeof state.likeCount === 'number' ? state.likeCount : comment.likeCount,
+          dislikeCount:
+            typeof state.dislikeCount === 'number' ? state.dislikeCount : comment.dislikeCount,
+          is_hidden: state.moderation?.isHidden ?? comment.is_hidden,
+          moderation_status: nextStatus,
+          hidden_reason: nextHiddenReason,
+        };
+      }
+
+      if (comment.replies && comment.replies.length > 0) {
+        return {
+          ...comment,
+          replies: applyServerReactionState(comment.replies, commentId, state),
+        };
+      }
+
+      return comment;
+    });
+  };
+
   const handleReaction = async (commentId: string, reactionType: 'like' | 'dislike', commentAuthorEmail: string) => {
     if (!isAuthenticated || !userEmail) {
       alert('Please login to react to comments');
@@ -468,6 +536,28 @@ export function CommentSection({ articleSlug, author, authorLocation = 'Texas, U
         await loadComments();
         alert(data.message || 'Failed to react to comment');
         return;
+      }
+
+      const hasServerCounts = typeof data.likeCount === 'number' || typeof data.dislikeCount === 'number';
+      const hasServerModeration = Boolean(data.moderation);
+
+      if (hasServerCounts || hasServerModeration) {
+        setComments(prevComments =>
+          applyServerReactionState(prevComments, commentId, {
+            likeCount: typeof data.likeCount === 'number' ? data.likeCount : undefined,
+            dislikeCount: typeof data.dislikeCount === 'number' ? data.dislikeCount : undefined,
+            moderation: data.moderation
+              ? {
+                  isHidden: Boolean(data.moderation.isHidden),
+                  status: data.moderation.status ?? undefined,
+                  hiddenReason:
+                    data.moderation.hiddenReason !== undefined
+                      ? data.moderation.hiddenReason
+                      : undefined,
+                }
+              : undefined,
+          })
+        );
       }
       
       // Server responded successfully, but let's verify the counts match

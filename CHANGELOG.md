@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0] - 2025-10-23
 
+## [1.1.0] - 2025-10-23
+
+### Added
+- **Auto-moderation for comments (Phase 5B)**
+  - Automatic hiding driven by dislike thresholds, banned phrases, and link spam heuristics
+  - `comment_flags` audit table records every moderation event with structured metadata
+  - API responses now surface moderation state so the UI stays in sync instantly
+
+### Changed
+- Comment submission endpoint logs moderation flags and can return "pending review" when auto-hidden
+- Reaction endpoint recalculates hide/unhide state after each interaction and returns updated counts
+
+### UI
+- Hidden comments display a review notice instead of raw text and disable reaction / reply actions until restored
+
+### Documentation & Tooling
+- Added `/docs/PHASE5B-AUTO-MODERATION.sql` and `/docs/PHASE5B-AUTO-MODERATION.md`
+- New `deploy-phase5b.sh` script guides the rollout checklist
+
 ### 🎉 Initial Public Release
 
 **Aryavarta newsletter platform goes live at arya-varta.in**

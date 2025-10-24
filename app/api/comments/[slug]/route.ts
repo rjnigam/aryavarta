@@ -1,5 +1,57 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
+
+const BANNED_PHRASES = ['idiot', 'stupid', 'moron', 'scam', 'spam', 'fake news'];
+const MAX_LINKS_ALLOWED = 2;
+
+function getServiceSupabaseClient() {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error('Missing Supabase environment variables');
+  }
+
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY
+  );
+}
+
+type ModerationCheckResult = {
+  shouldHide: boolean;
+  flagType: 'auto_banned_phrase' | 'auto_link_spam' | null;
+  reason: string | null;
+  metadata?: Record<string, unknown>;
+};
+
+function evaluateCommentModeration(commentText: string): ModerationCheckResult {
+  const normalized = commentText.toLowerCase();
+
+  const bannedPhrase = BANNED_PHRASES.find((phrase) => normalized.includes(phrase));
+  if (bannedPhrase) {
+    return {
+      shouldHide: true,
+      flagType: 'auto_banned_phrase',
+      reason: `Contains prohibited language: "${bannedPhrase}"`,
+      metadata: { bannedPhrase },
+    };
+  }
+
+  const linkMatches = commentText.match(/https?:\/\//gi) || [];
+  if (linkMatches.length > MAX_LINKS_ALLOWED) {
+    return {
+      shouldHide: true,
+      flagType: 'auto_link_spam',
+      reason: `Contains ${linkMatches.length} links (max ${MAX_LINKS_ALLOWED})`,
+      metadata: { linkCount: linkMatches.length },
+    };
+  }
+
+  return {
+    shouldHide: false,
+    flagType: null,
+    reason: null,
+  };
+}
 
 /**
  * GET /api/comments/[slug]
@@ -100,6 +152,8 @@ export async function POST(
       );
     }
 
+    const moderationResult = evaluateCommentModeration(commentText);
+
     // Verify user is an active subscriber
     const { data: subscriber, error: verifyError } = await supabase
       .from('subscribers')
@@ -149,6 +203,10 @@ export async function POST(
           username: username,
           comment_text: commentText.trim(),
           parent_comment_id: parentCommentId || null,
+          is_hidden: moderationResult.shouldHide,
+          hidden_reason: moderationResult.shouldHide ? moderationResult.reason : null,
+          hidden_at: moderationResult.shouldHide ? new Date().toISOString() : null,
+          moderation_status: moderationResult.shouldHide ? 'auto_hidden' : 'visible',
         },
       ])
       .select()
@@ -159,9 +217,31 @@ export async function POST(
       throw insertError;
     }
 
+    if (moderationResult.shouldHide && moderationResult.flagType) {
+      try {
+        const serviceSupabase = getServiceSupabaseClient();
+        await serviceSupabase.from('comment_flags').insert({
+          comment_id: newComment.id,
+          flag_type: moderationResult.flagType,
+          trigger_source: 'system',
+          trigger_details: {
+            reason: moderationResult.reason,
+            ...moderationResult.metadata,
+            excerpt: commentText.substring(0, 200),
+          },
+        });
+      } catch (flagError) {
+        console.error('Failed to log moderation flag:', flagError);
+      }
+    }
+
     return NextResponse.json(
       {
-        message: parentCommentId ? 'Reply posted successfully!' : 'Comment posted successfully!',
+        message: moderationResult.shouldHide
+          ? 'Your comment was received and is pending moderator review.'
+          : parentCommentId
+          ? 'Reply posted successfully!'
+          : 'Comment posted successfully!',
         comment: newComment,
       },
       { status: 201 }

@@ -1,5 +1,134 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
+
+const AUTO_HIDE_MIN_DISLIKES = 5;
+const AUTO_HIDE_DIFF_THRESHOLD = 3;
+
+function getServiceSupabaseClient() {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error('Missing Supabase environment variables');
+  }
+
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY
+  );
+}
+
+async function applyReactionModeration(commentId: string) {
+  const serviceSupabase = getServiceSupabaseClient();
+
+  const { data: reactions, error: reactionsError } = await serviceSupabase
+    .from('comment_reactions')
+    .select('reaction_type')
+    .eq('comment_id', commentId);
+
+  if (reactionsError) {
+    console.error('Failed to evaluate reactions for moderation:', reactionsError);
+    return null;
+  }
+
+  const likeCount = reactions?.filter((r) => r.reaction_type === 'like').length || 0;
+  const dislikeCount = reactions?.filter((r) => r.reaction_type === 'dislike').length || 0;
+
+  const { data: comment, error: commentError } = await serviceSupabase
+    .from('comments')
+    .select('is_hidden, moderation_status, hidden_reason')
+    .eq('id', commentId)
+    .single();
+
+  if (commentError || !comment) {
+    if (commentError) {
+      console.error('Failed to fetch comment for moderation:', commentError);
+    }
+    return { likeCount, dislikeCount };
+  }
+
+  const shouldHide =
+    dislikeCount >= AUTO_HIDE_MIN_DISLIKES &&
+    dislikeCount - likeCount >= AUTO_HIDE_DIFF_THRESHOLD;
+
+  const now = new Date().toISOString();
+
+  if (shouldHide && !comment.is_hidden) {
+    const reason = `Auto-hidden due to ${dislikeCount} dislikes vs ${likeCount} likes.`;
+
+    const { error: updateError } = await serviceSupabase
+      .from('comments')
+      .update({
+        is_hidden: true,
+        hidden_reason: reason,
+        hidden_at: now,
+        moderation_status: 'auto_hidden',
+      })
+      .eq('id', commentId);
+
+    if (updateError) {
+      console.error('Failed to hide comment automatically:', updateError);
+    } else {
+      await serviceSupabase.from('comment_flags').insert({
+        comment_id: commentId,
+        flag_type: 'auto_dislike_threshold',
+        trigger_source: 'system',
+        trigger_details: {
+          likeCount,
+          dislikeCount,
+          thresholds: {
+            minDislikes: AUTO_HIDE_MIN_DISLIKES,
+            diff: AUTO_HIDE_DIFF_THRESHOLD,
+          },
+        },
+      });
+    }
+
+    return {
+      likeCount,
+      dislikeCount,
+      isHidden: true,
+      hiddenReason: reason,
+      moderationStatus: 'auto_hidden' as const,
+    };
+  }
+
+  if (!shouldHide && comment.is_hidden && comment.moderation_status === 'auto_hidden') {
+    const { error: restoreError } = await serviceSupabase
+      .from('comments')
+      .update({
+        is_hidden: false,
+        hidden_reason: null,
+        hidden_at: null,
+        moderation_status: 'visible',
+      })
+      .eq('id', commentId);
+
+    if (restoreError) {
+      console.error('Failed to restore comment visibility:', restoreError);
+    } else {
+      await serviceSupabase
+        .from('comment_flags')
+        .update({ status: 'resolved', resolved_at: now, resolved_by: 'system' })
+        .eq('comment_id', commentId)
+        .eq('status', 'open');
+    }
+
+    return {
+      likeCount,
+      dislikeCount,
+      isHidden: false,
+      hiddenReason: null,
+      moderationStatus: 'visible' as const,
+    };
+  }
+
+  return {
+    likeCount,
+    dislikeCount,
+    isHidden: comment.is_hidden,
+    hiddenReason: comment.hidden_reason,
+    moderationStatus: comment.moderation_status,
+  };
+}
 
 // GET: Fetch reaction counts and user's reaction for a comment
 export async function GET(request: NextRequest) {
@@ -114,6 +243,8 @@ export async function POST(request: NextRequest) {
     }
     
     const existingReaction = existingReactions?.[0];
+    let action: 'added' | 'removed' | 'updated';
+    let message: string;
 
     if (existingReaction) {
       // If clicking the same reaction, remove it (toggle off)
@@ -130,12 +261,8 @@ export async function POST(request: NextRequest) {
             { status: 500 }
           );
         }
-
-        return NextResponse.json({
-          message: 'Reaction removed',
-          action: 'removed',
-          reactionType,
-        });
+        action = 'removed';
+        message = 'Reaction removed';
       } else {
         // If clicking different reaction, update it (like -> dislike or vice versa)
         const { error: updateError } = await supabase
@@ -150,12 +277,8 @@ export async function POST(request: NextRequest) {
             { status: 500 }
           );
         }
-
-        return NextResponse.json({
-          message: 'Reaction updated',
-          action: 'updated',
-          reactionType,
-        });
+        action = 'updated';
+        message = 'Reaction updated';
       }
     } else {
       // No existing reaction, create new one
@@ -174,13 +297,31 @@ export async function POST(request: NextRequest) {
           { status: 500 }
         );
       }
-
-      return NextResponse.json({
-        message: 'Reaction added',
-        action: 'added',
-        reactionType,
-      });
+      action = 'added';
+      message = 'Reaction added';
     }
+
+    let moderationState = null;
+    try {
+      moderationState = await applyReactionModeration(commentId);
+    } catch (moderationError) {
+      console.error('Failed to apply auto moderation after reaction:', moderationError);
+    }
+
+    return NextResponse.json({
+      message,
+      action,
+      reactionType,
+      likeCount: moderationState?.likeCount ?? null,
+      dislikeCount: moderationState?.dislikeCount ?? null,
+      moderation: moderationState
+        ? {
+            isHidden: Boolean(moderationState.isHidden),
+            status: moderationState.moderationStatus,
+            hiddenReason: moderationState.hiddenReason,
+          }
+        : undefined,
+    });
   } catch (error) {
     console.error('Error in POST /api/comments/reactions:', error);
     return NextResponse.json(

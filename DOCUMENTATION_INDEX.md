@@ -56,6 +56,17 @@ Complete guide to all Aryavarta project documentation.
    - Troubleshooting env issues
    - Development vs production setup
 
+### Feature Rollouts
+7. **[docs/PHASE5A-SUMMARY.md](docs/PHASE5A-SUMMARY.md)**
+   - Like/Dislike reactions overview
+   - Deployment checklist
+   - Testing scenarios and data tracking
+
+8. **[docs/PHASE5B-AUTO-MODERATION.md](docs/PHASE5B-AUTO-MODERATION.md)**
+   - Auto-hide rules & thresholds
+   - New moderation schema and APIs
+   - Testing & deployment guidance
+
 ---
 
 ## 🚀 Deployment & Operations
