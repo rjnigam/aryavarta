@@ -113,7 +113,7 @@ export default function Home() {
             <h3 className="text-2xl md:text-3xl font-bold mb-2 text-gray-900 font-serif text-center">Our Mission</h3>
             <p className="text-center text-saffron-700 mb-2 font-serif italic">आर्यावर्त • Āryāvarta • Land of the Noble People</p>
             <p className="text-center text-gray-600 mb-8 text-sm font-serif italic">
-              "आर्याणां वर्ते देशः आर्यावर्तः" — The land where noble souls dwell
+              &ldquo;आर्याणां वर्ते देशः आर्यावर्तः&rdquo; — The land where noble souls dwell
             </p>
             <p className="text-lg text-gray-700 leading-relaxed mb-6 text-justify">
               We live in an age of unprecedented material abundance, yet many of us feel spiritually empty. 

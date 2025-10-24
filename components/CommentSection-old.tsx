@@ -21,12 +21,15 @@ export function CommentSection({ author, authorLocation = 'Texas, United States'
 
   // Check subscription status on mount
   useEffect(() => {
-    const subscriptionStatus = localStorage.getItem('aryavarta_subscribed');
-    const storedUsername = localStorage.getItem('aryavarta_username');
-    setIsSubscribed(subscriptionStatus === 'true');
-    if (storedUsername) {
-      setUsername(storedUsername);
-    }
+    const checkSubscription = () => {
+      const subscriptionStatus = localStorage.getItem('aryavarta_subscribed');
+      const storedUsername = localStorage.getItem('aryavarta_username');
+      setIsSubscribed(subscriptionStatus === 'true');
+      if (storedUsername) {
+        setUsername(storedUsername);
+      }
+    };
+    checkSubscription();
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -116,7 +119,7 @@ export function CommentSection({ author, authorLocation = 'Texas, United States'
           </h4>
           <p className="text-gray-600 mb-6 max-w-lg mx-auto">
             Only subscribers can comment on articles. This helps us maintain quality discussions and reduce spam. 
-            When you subscribe, we'll generate a unique username for you to use in comments.
+            When you subscribe, we&apos;ll generate a unique username for you to use in comments.
           </p>
           <Link 
             href="/subscribe"
@@ -138,16 +141,16 @@ export function CommentSection({ author, authorLocation = 'Texas, United States'
             <div className="bg-white rounded-lg p-4 mb-4 max-w-md mx-auto border-2 border-green-200">
               <p className="text-sm text-gray-600 mb-2">Your Username:</p>
               <p className="text-2xl font-bold font-mono text-saffron-700">{username}</p>
-              <p className="text-xs text-gray-500 mt-2">You'll use this to comment once the feature goes live!</p>
+              <p className="text-xs text-gray-500 mt-2">You&apos;ll use this to comment once the feature goes live!</p>
             </div>
           )}
           
           <p className="text-gray-600 mb-4 max-w-lg mx-auto">
-            Comments are coming soon! We're working on integrating user authentication 
+            Comments are coming soon! We&apos;re working on integrating user authentication 
             so you can join the discussion with your unique username.
           </p>
           <p className="text-sm text-gray-500">
-            You'll be notified via email when commenting goes live.
+            You&apos;ll be notified via email when commenting goes live.
           </p>
         </div>
       )}

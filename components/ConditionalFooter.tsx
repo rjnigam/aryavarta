@@ -9,9 +9,12 @@ export function ConditionalFooter() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const authenticated = localStorage.getItem('aryavarta_authenticated') === 'true';
-    setIsAuthenticated(authenticated);
-    setIsLoading(false);
+    const checkAuth = () => {
+      const authenticated = localStorage.getItem('aryavarta_authenticated') === 'true';
+      setIsAuthenticated(authenticated);
+      setIsLoading(false);
+    };
+    checkAuth();
   }, []);
 
   // Show loading skeleton

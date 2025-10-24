@@ -65,7 +65,16 @@ Complete guide to all Aryavarta project documentation.
 8. **[docs/PHASE5B-AUTO-MODERATION.md](docs/PHASE5B-AUTO-MODERATION.md)**
    - Auto-hide rules & thresholds
    - New moderation schema and APIs
+   - Manual report workflow & escalation threshold
    - Testing & deployment guidance
+9. **[docs/PHASE5C-MODERATION-DASHBOARD-MOCK.md](docs/PHASE5C-MODERATION-DASHBOARD-MOCK.md)**
+   - Walkthrough of the `/moderation` dashboard mock
+   - Layout overview, data wiring plan, next steps
+   - Local viewing instructions and acceptance criteria
+10. **[docs/PHASE5C-MODERATION-BACKEND.md](docs/PHASE5C-MODERATION-BACKEND.md)**
+    - Live API endpoints powering the moderation dashboard
+    - `comment_flags` assignment metadata + migration
+    - Testing checklist and deployment script
 
 ---
 

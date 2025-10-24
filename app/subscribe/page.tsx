@@ -63,7 +63,7 @@ export default function SubscribePage() {
       <section className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 font-serif text-gray-900">
-            What You'll Receive
+            What You&apos;ll Receive
           </h2>
           
           <div className="grid md:grid-cols-2 gap-6">
@@ -155,7 +155,7 @@ export default function SubscribePage() {
               Join our community of seekers exploring ancient wisdom
             </p>
             <p className="text-sm opacity-75 mb-8">
-              "आर्याणां वर्ते देशः आर्यावर्तः" — The land where noble souls dwell
+              &ldquo;आर्याणां वर्ते देशः आर्यावर्तः&rdquo; — The land where noble souls dwell
             </p>
             <a 
               href="#top"

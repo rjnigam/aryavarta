@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { MessageCircle, Send, BookOpen, Lock, MapPin, CheckCircle, Loader2, LogIn } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -35,14 +35,7 @@ export function CommentSection({ articleSlug, author, authorLocation = 'Texas, U
   const [loginEmail, setLoginEmail] = useState('');
   const [loginError, setLoginError] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-
-  // Load comments and check auth on mount
-  useEffect(() => {
-    loadComments();
-    checkAuthStatus();
-  }, [articleSlug]);
-
-  const checkAuthStatus = () => {
+  const checkAuthStatus = useCallback(() => {
     const subscribed = localStorage.getItem('aryavarta_subscribed') === 'true';
     const email = localStorage.getItem('aryavarta_email');
     const user = localStorage.getItem('aryavarta_username');
@@ -53,9 +46,9 @@ export function CommentSection({ articleSlug, author, authorLocation = 'Texas, U
     
     if (email) setUserEmail(email);
     if (user) setUsername(user);
-  };
+  }, []);
 
-  const loadComments = async () => {
+  const loadComments = useCallback(async () => {
     try {
       const response = await fetch(`/api/comments/${articleSlug}`);
       const data = await response.json();
@@ -65,7 +58,13 @@ export function CommentSection({ articleSlug, author, authorLocation = 'Texas, U
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [articleSlug]);
+
+  // Load comments and check auth on mount and when dependencies change
+  useEffect(() => {
+    loadComments();
+    checkAuthStatus();
+  }, [loadComments, checkAuthStatus]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,20 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
-import { createClient } from '@supabase/supabase-js';
+import { getServiceSupabaseClient } from '@/lib/supabaseAdmin';
 
-const BANNED_PHRASES = ['idiot', 'stupid', 'moron', 'scam', 'spam', 'fake news'];
+const BANNED_PHRASES = ['idiot', 'stupid', 'moron', 'scam', 'fake news'];
 const MAX_LINKS_ALLOWED = 2;
-
-function getServiceSupabaseClient() {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    throw new Error('Missing Supabase environment variables');
-  }
-
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY
-  );
-}
 
 type ModerationCheckResult = {
   shouldHide: boolean;
@@ -220,6 +209,7 @@ export async function POST(
     if (moderationResult.shouldHide && moderationResult.flagType) {
       try {
         const serviceSupabase = getServiceSupabaseClient();
+        const now = new Date().toISOString();
         await serviceSupabase.from('comment_flags').insert({
           comment_id: newComment.id,
           flag_type: moderationResult.flagType,
@@ -229,6 +219,8 @@ export async function POST(
             ...moderationResult.metadata,
             excerpt: commentText.substring(0, 200),
           },
+          last_touched_by: 'system',
+          last_touched_at: now,
         });
       } catch (flagError) {
         console.error('Failed to log moderation flag:', flagError);

@@ -1,20 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
-import { createClient } from '@supabase/supabase-js';
+import { getServiceSupabaseClient } from '@/lib/supabaseAdmin';
 
 const AUTO_HIDE_MIN_DISLIKES = 5;
 const AUTO_HIDE_DIFF_THRESHOLD = 3;
-
-function getServiceSupabaseClient() {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    throw new Error('Missing Supabase environment variables');
-  }
-
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY
-  );
-}
 
 async function applyReactionModeration(commentId: string) {
   const serviceSupabase = getServiceSupabaseClient();
@@ -79,6 +68,8 @@ async function applyReactionModeration(commentId: string) {
             diff: AUTO_HIDE_DIFF_THRESHOLD,
           },
         },
+        last_touched_by: 'system',
+        last_touched_at: now,
       });
     }
 
@@ -107,7 +98,13 @@ async function applyReactionModeration(commentId: string) {
     } else {
       await serviceSupabase
         .from('comment_flags')
-        .update({ status: 'resolved', resolved_at: now, resolved_by: 'system' })
+        .update({
+          status: 'resolved',
+          resolved_at: now,
+          resolved_by: 'system',
+          last_touched_by: 'system',
+          last_touched_at: now,
+        })
         .eq('comment_id', commentId)
         .eq('status', 'open');
     }

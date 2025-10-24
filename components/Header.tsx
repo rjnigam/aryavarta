@@ -230,7 +230,7 @@ export function Header() {
 
             <div className="mt-6 pt-6 border-t border-gray-200 text-center">
               <p className="text-sm text-gray-600 mb-3">
-                Don't have an account yet?
+                Don&apos;t have an account yet?
               </p>
               <Link
                 href="/subscribe"

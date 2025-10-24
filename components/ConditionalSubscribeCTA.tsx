@@ -13,9 +13,12 @@ export function ConditionalSubscribeCTA({ variant = 'default' }: ConditionalSubs
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const authenticated = localStorage.getItem('aryavarta_authenticated') === 'true';
-    setIsAuthenticated(authenticated);
-    setIsLoading(false);
+    const checkAuth = () => {
+      const authenticated = localStorage.getItem('aryavarta_authenticated') === 'true';
+      setIsAuthenticated(authenticated);
+      setIsLoading(false);
+    };
+    checkAuth();
   }, []);
 
   // Don't show anything while checking auth status

@@ -100,7 +100,7 @@ export function NewsletterSignup({ variant = 'light' }: NewsletterSignupProps) {
               {username}
             </p>
             <p className={`text-xs mt-2 ${isDark ? 'text-white/70' : 'text-green-700'}`}>
-              Save this — you'll use it to comment on articles soon!
+              Save this — you&apos;ll use it to comment on articles soon!
             </p>
           </div>
         )}

@@ -147,7 +147,7 @@ export function PersonalizedHero() {
               </span>
             </div>
             <p className="text-gray-600">
-              You've read {readCount} of {totalCount} articles
+              You&apos;ve read {readCount} of {totalCount} articles
             </p>
           </div>
 

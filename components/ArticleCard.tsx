@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Calendar, Clock } from 'lucide-react';
 
 interface Article {
@@ -25,10 +26,13 @@ export function ArticleCard({ article }: ArticleCardProps) {
       {/* Image section */}
       {article.image && (
         <div className="relative h-48 overflow-hidden bg-gradient-to-br from-saffron-100 to-sandalwood-100">
-          <img 
-            src={article.image} 
+          <Image
+            src={article.image}
             alt={article.title}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+            fill
+            sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+            className="object-cover transition-transform duration-300 group-hover:scale-110"
+            priority={false}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
         </div>

@@ -14,13 +14,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Automatic hiding driven by dislike thresholds, banned phrases, and link spam heuristics
   - `comment_flags` audit table records every moderation event with structured metadata
   - API responses now surface moderation state so the UI stays in sync instantly
+- Manual reporting endpoint and UI allow subscribers to flag abusive comments; three unique reports auto-hide the content and log a `manual_hide` event
+- **Moderation dashboard mock (Phase 5C preview)**
+  - `/moderation` route showcases the planned moderator workflow with sample data
+  - Summary metrics, queue table, activity timeline, and implementation notes included for alignment
+- **Moderation dashboard backend (Phase 5C)**
+  - New `/api/moderation/queue`, `/metrics`, and `/activity` endpoints power real dashboard data with Supabase joins
+  - `comment_flags` gains assignment + audit columns (`assigned_to`, `notes`, `last_touched_by`, `last_touched_at`) and fresh indexes for faster queries
+  - Shared moderation utilities consolidate severity scoring, time windows, and article title caching for consistency across APIs
 
 ### Changed
 - Comment submission endpoint logs moderation flags and can return "pending review" when auto-hidden
 - Reaction endpoint recalculates hide/unhide state after each interaction and returns updated counts
+- Removed the expectation that commenters self-identify spam; `spam` is no longer a banned phrase because dedicated reporting now covers that case
 
 ### UI
 - Hidden comments display a review notice instead of raw text and disable reaction / reply actions until restored
+- Moderation dashboard mock provides high-level oversight cards, queue table, and moderator focus board
+- Added a contextual "Report" button on each comment for authenticated subscribers (excluding the author)
 
 ### Documentation & Tooling
 - Added `/docs/PHASE5B-AUTO-MODERATION.sql` and `/docs/PHASE5B-AUTO-MODERATION.md`

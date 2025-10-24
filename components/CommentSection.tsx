@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { MessageCircle, Send, BookOpen, Lock, MapPin, CheckCircle, Loader2, LogIn, Reply, ThumbsUp, ThumbsDown, ChevronDown, ChevronUp, ArrowUpDown } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { MessageCircle, Send, BookOpen, Lock, MapPin, CheckCircle, Loader2, LogIn, Reply, ThumbsUp, ThumbsDown, ChevronDown, ChevronUp, ArrowUpDown, Flag } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -41,6 +41,9 @@ interface CommentWithRepliesProps {
   onReplyTextChange: (text: string) => void;
   onSubmitReply: (parentId: string) => void;
   onReaction: (commentId: string, reactionType: 'like' | 'dislike', commentAuthorEmail: string) => void;
+  onReport: (commentId: string) => void;
+  reportingCommentId: string | null;
+  reportedCommentIds: Set<string>;
   formatDate: (date: string) => string;
   expandedThreads: Set<string>;
   onToggleThread: (commentId: string) => void;
@@ -59,6 +62,9 @@ function CommentWithReplies({
   onReplyTextChange,
   onSubmitReply,
   onReaction,
+  onReport,
+  reportingCommentId,
+  reportedCommentIds,
   formatDate,
   expandedThreads,
   onToggleThread,
@@ -74,6 +80,8 @@ function CommentWithReplies({
     moderationStatus === 'auto_hidden' ||
     moderationStatus === 'manual_hidden';
   const hiddenReason = comment.hidden_reason;
+  const hasUserReported = reportedCommentIds.has(comment.id);
+  const isReporting = reportingCommentId === comment.id;
 
   return (
     <div className={`${marginLeft} ${depth > 0 ? 'mt-4' : ''}`}>
@@ -152,6 +160,25 @@ function CommentWithReplies({
             >
               <Reply size={16} />
               Reply
+            </button>
+          )}
+
+          {isAuthenticated && !isOwnComment && !isHidden && (
+            <button
+              onClick={() => onReport(comment.id)}
+              disabled={isReporting || hasUserReported}
+              className={`inline-flex items-center gap-1.5 text-sm font-semibold transition-colors ${
+                hasUserReported
+                  ? 'text-saffron-600 cursor-default'
+                  : 'text-gray-500 hover:text-saffron-700'
+              } disabled:opacity-60 disabled:cursor-not-allowed`}
+            >
+              {isReporting ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                <Flag size={16} className={hasUserReported ? 'text-saffron-600' : ''} />
+              )}
+              {hasUserReported ? 'Reported' : 'Report'}
             </button>
           )}
           
@@ -237,6 +264,9 @@ function CommentWithReplies({
               onReplyTextChange={onReplyTextChange}
               onSubmitReply={onSubmitReply}
               onReaction={onReaction}
+              onReport={onReport}
+              reportingCommentId={reportingCommentId}
+              reportedCommentIds={reportedCommentIds}
               formatDate={formatDate}
               expandedThreads={expandedThreads}
               onToggleThread={onToggleThread}
@@ -258,6 +288,8 @@ export function CommentSection({ articleSlug, author, authorLocation = 'Texas, U
   // Reply state
   const [replyingTo, setReplyingTo] = useState<string | null>(null); // comment id being replied to
   const [replyText, setReplyText] = useState('');
+  const [reportingCommentId, setReportingCommentId] = useState<string | null>(null);
+  const [reportedCommentIds, setReportedCommentIds] = useState<Set<string>>(() => new Set());
   
   // Auth state
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -275,17 +307,7 @@ export function CommentSection({ articleSlug, author, authorLocation = 'Texas, U
   // Sorting state
   const [sortBy, setSortBy] = useState<'popular' | 'newest' | 'oldest'>('popular');
 
-  // Load comments and check auth on mount
-  useEffect(() => {
-    checkAuthStatus();
-  }, [articleSlug]);
-
-  // Load comments after auth status is determined
-  useEffect(() => {
-    loadComments();
-  }, [articleSlug, userEmail]); // Reload when userEmail changes
-
-  const checkAuthStatus = () => {
+  const checkAuthStatus = useCallback(() => {
     const subscribed = localStorage.getItem('aryavarta_subscribed') === 'true';
     const email = localStorage.getItem('aryavarta_email');
     const user = localStorage.getItem('aryavarta_username');
@@ -296,34 +318,10 @@ export function CommentSection({ articleSlug, author, authorLocation = 'Texas, U
     
     if (email) setUserEmail(email);
     if (user) setUsername(user);
-  };
-
-  const loadComments = async () => {
-    try {
-      // Get current email from localStorage for the fetch
-      const currentEmail = localStorage.getItem('aryavarta_email') || '';
-      
-      const response = await fetch(`/api/comments/${articleSlug}`);
-      const data = await response.json();
-      const commentsData = data.comments || [];
-      
-      // Fetch reactions for all comments (including nested replies)
-      const commentsWithReactions = await Promise.all(
-        commentsData.map(async (comment: Comment) => {
-          return await addReactionsToComment(comment, currentEmail);
-        })
-      );
-      
-      setComments(commentsWithReactions);
-    } catch (err) {
-      console.error('Failed to load comments:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, []);
 
   // Recursively add reactions to comments and replies
-  const addReactionsToComment = async (comment: Comment, email: string): Promise<Comment> => {
+  const addReactionsToComment = useCallback(async (comment: Comment, email: string): Promise<Comment> => {
     try {
       const reactionResponse = await fetch(
         `/api/comments/reactions?commentId=${encodeURIComponent(comment.id)}&userEmail=${encodeURIComponent(email || '')}`
@@ -368,7 +366,36 @@ export function CommentSection({ articleSlug, author, authorLocation = 'Texas, U
         replies: comment.replies || [],
       };
     }
-  };
+  }, []);
+
+  const loadComments = useCallback(async () => {
+    try {
+      const fallbackEmail = localStorage.getItem('aryavarta_email') || '';
+      const currentEmail = userEmail || fallbackEmail;
+
+      const response = await fetch(`/api/comments/${articleSlug}`);
+      const data = await response.json();
+      const commentsData = data.comments || [];
+      
+      const commentsWithReactions = await Promise.all(
+        commentsData.map(async (comment: Comment) => addReactionsToComment(comment, currentEmail))
+      );
+      
+      setComments(commentsWithReactions);
+    } catch (err) {
+      console.error('Failed to load comments:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [addReactionsToComment, articleSlug, userEmail]);
+
+  useEffect(() => {
+    checkAuthStatus();
+  }, [articleSlug, checkAuthStatus]);
+
+  useEffect(() => {
+    loadComments();
+  }, [loadComments]);
 
   // Helper function to update reactions in nested comments
   const updateCommentReaction = (
@@ -570,6 +597,79 @@ export function CommentSection({ articleSlug, author, authorLocation = 'Texas, U
       // Revert optimistic update on error
       await loadComments();
       alert('Failed to react to comment');
+    }
+  };
+
+  const handleReportComment = async (commentId: string) => {
+    if (!isAuthenticated || !userEmail || !username) {
+      alert('Please login to report comments');
+      return;
+    }
+
+    if (reportedCommentIds.has(commentId)) {
+      alert('You have already reported this comment');
+      return;
+    }
+
+    const shouldReport = window.confirm('Report this comment as spam?');
+    if (!shouldReport) {
+      return;
+    }
+
+    setReportingCommentId(commentId);
+
+    try {
+      const response = await fetch('/api/comments/report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          commentId,
+          reporterEmail: userEmail,
+          reporterUsername: username,
+          reason: 'spam',
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message || 'Failed to report comment');
+        return;
+      }
+
+      setReportedCommentIds((prev) => {
+        const next = new Set(prev);
+        next.add(commentId);
+        return next;
+      });
+
+      if (data.moderation) {
+        setComments((prevComments) =>
+          applyServerReactionState(prevComments, commentId, {
+            moderation: {
+              isHidden: Boolean(data.moderation.isHidden),
+              status: data.moderation.status ?? undefined,
+              hiddenReason:
+                data.moderation.hiddenReason !== undefined
+                  ? data.moderation.hiddenReason
+                  : null,
+            },
+          })
+        );
+      }
+
+      if (data.moderation?.isHidden) {
+        setTimeout(() => {
+          loadComments();
+        }, 500);
+      }
+
+      alert(data.message || 'Thanks for flagging this comment');
+    } catch (err) {
+      console.error('Failed to report comment:', err);
+      alert('Failed to report comment');
+    } finally {
+      setReportingCommentId(null);
     }
   };
 
@@ -941,6 +1041,9 @@ export function CommentSection({ articleSlug, author, authorLocation = 'Texas, U
               onReplyTextChange={(text) => setReplyText(text)}
               onSubmitReply={handleSubmitReply}
               onReaction={handleReaction}
+              onReport={handleReportComment}
+              reportingCommentId={reportingCommentId}
+              reportedCommentIds={reportedCommentIds}
               formatDate={formatDate}
               expandedThreads={expandedThreads}
               onToggleThread={toggleThread}
