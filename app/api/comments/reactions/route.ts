@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { getServiceSupabaseClient } from '@/lib/supabaseAdmin';
+import { getUser, getAuthenticatedSubscriber } from '@/lib/supabaseServerAuth';
 
 const AUTO_HIDE_MIN_DISLIKES = 5;
 const AUTO_HIDE_DIFF_THRESHOLD = 3;
@@ -198,13 +199,39 @@ export async function GET(request: NextRequest) {
 // POST: Add or update a reaction
 export async function POST(request: NextRequest) {
   try {
+    // Get authenticated user
+    const user = await getUser(request);
+    if (!user) {
+      return NextResponse.json(
+        { message: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
+    // Get subscriber profile
+    const subscriber = await getAuthenticatedSubscriber(request);
+    if (!subscriber) {
+      return NextResponse.json(
+        { message: 'Subscriber profile not found' },
+        { status: 403 }
+      );
+    }
+
+    if (!subscriber.is_active) {
+      return NextResponse.json(
+        { message: 'Your subscription is not active.' },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
-    const { commentId, userEmail, reactionType, commentAuthorEmail } = body;
+    const { commentId, reactionType, commentAuthorEmail } = body;
+    const userEmail = subscriber.email;
 
     // Validation
-    if (!commentId || !userEmail || !reactionType) {
+    if (!commentId || !reactionType) {
       return NextResponse.json(
-        { message: 'Comment ID, user email, and reaction type are required' },
+        { message: 'Comment ID and reaction type are required' },
         { status: 400 }
       );
     }

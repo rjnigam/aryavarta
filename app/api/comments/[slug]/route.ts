@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { getServiceSupabaseClient } from '@/lib/supabaseAdmin';
+import { getUser, getAuthenticatedSubscriber } from '@/lib/supabaseServerAuth';
 
 const BANNED_PHRASES = ['idiot', 'stupid', 'moron', 'scam', 'fake news'];
 const MAX_LINKS_ALLOWED = 2;
@@ -117,12 +118,37 @@ export async function POST(
 ) {
   try {
     const { slug } = await params;
-    const { email, username, commentText, parentCommentId } = await request.json();
+    const { commentText, parentCommentId } = await request.json();
+
+    // Get authenticated user
+    const user = await getUser(request);
+    if (!user) {
+      return NextResponse.json(
+        { message: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
+    // Get subscriber profile
+    const subscriber = await getAuthenticatedSubscriber(request);
+    if (!subscriber) {
+      return NextResponse.json(
+        { message: 'Subscriber profile not found' },
+        { status: 403 }
+      );
+    }
+
+    if (!subscriber.is_active) {
+      return NextResponse.json(
+        { message: 'Your subscription is not active.' },
+        { status: 403 }
+      );
+    }
 
     // Validate input
-    if (!email || !username || !commentText) {
+    if (!commentText) {
       return NextResponse.json(
-        { message: 'Email, username, and comment text are required' },
+        { message: 'Comment text is required' },
         { status: 400 }
       );
     }
@@ -142,28 +168,6 @@ export async function POST(
     }
 
     const moderationResult = evaluateCommentModeration(commentText);
-
-    // Verify user is an active subscriber
-    const { data: subscriber, error: verifyError } = await supabase
-      .from('subscribers')
-      .select('email, username, is_active')
-      .eq('email', email)
-      .eq('username', username)
-      .single();
-
-    if (verifyError || !subscriber) {
-      return NextResponse.json(
-        { message: 'Invalid credentials. Please log in again.' },
-        { status: 401 }
-      );
-    }
-
-    if (!subscriber.is_active) {
-      return NextResponse.json(
-        { message: 'Your subscription is not active.' },
-        { status: 403 }
-      );
-    }
 
     // If replying to a comment, verify parent exists
     if (parentCommentId) {
@@ -188,8 +192,8 @@ export async function POST(
       .insert([
         {
           article_slug: slug,
-          user_email: email,
-          username: username,
+          user_email: subscriber.email,
+          username: subscriber.username,
           comment_text: commentText.trim(),
           parent_comment_id: parentCommentId || null,
           is_hidden: moderationResult.shouldHide,

@@ -54,14 +54,22 @@ export async function signUp(email: string, password: string, name: string) {
 export async function signIn(email: string, password: string) {
   const supabase = getSupabaseClient();
 
+  console.log('[supabaseAuth] Attempting sign in for:', email);
+
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
 
   if (error) {
+    console.error('[supabaseAuth] Sign in error:', error);
     throw error;
   }
+
+  console.log('[supabaseAuth] Sign in successful:', {
+    user: data.user?.email,
+    session: !!data.session,
+  });
 
   return data;
 }
@@ -88,11 +96,27 @@ export async function signInWithProvider(provider: Provider) {
  * Sign out the current user
  */
 export async function signOut() {
-  const supabase = getSupabaseClient();
+  try {
+    // Call the logout API route to ensure server-side session is cleared
+    const response = await fetch('/api/auth/logout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include', // Important for cookie handling
+    });
 
-  const { error } = await supabase.auth.signOut();
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to sign out');
+    }
 
-  if (error) {
+    // Optionally, also sign out from client-side to ensure local state is cleared
+    const supabase = getSupabaseClient();
+    await supabase.auth.signOut();
+
+  } catch (error) {
+    console.error('Sign out error:', error);
     throw error;
   }
 }

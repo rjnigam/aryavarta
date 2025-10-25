@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { MessageCircle, Send, BookOpen, Lock, MapPin, CheckCircle, Loader2, LogIn, Reply, ThumbsUp, ThumbsDown, ChevronDown, ChevronUp, ArrowUpDown, Flag } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
 
 interface Comment {
   id: string;
@@ -279,6 +281,9 @@ function CommentWithReplies({
 }
 
 export function CommentSection({ articleSlug, author, authorLocation = 'Texas, United States', authorImage = '/authors/rajath-nigam.jpg' }: CommentSectionProps) {
+  const { user, subscriber, loading: authLoading } = useAuth();
+  const router = useRouter();
+  
   const [commentText, setCommentText] = useState('');
   const [comments, setComments] = useState<Comment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -291,34 +296,17 @@ export function CommentSection({ articleSlug, author, authorLocation = 'Texas, U
   const [reportingCommentId, setReportingCommentId] = useState<string | null>(null);
   const [reportedCommentIds, setReportedCommentIds] = useState<Set<string>>(() => new Set());
   
-  // Auth state
-  const [isSubscribed, setIsSubscribed] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userEmail, setUserEmail] = useState('');
-  const [username, setUsername] = useState('');
-  const [showLoginForm, setShowLoginForm] = useState(false);
-  const [loginEmail, setLoginEmail] = useState('');
-  const [loginError, setLoginError] = useState('');
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
-  
   // Thread collapse/expand state
   const [expandedThreads, setExpandedThreads] = useState<Set<string>>(new Set());
   
   // Sorting state
   const [sortBy, setSortBy] = useState<'popular' | 'newest' | 'oldest'>('popular');
 
-  const checkAuthStatus = useCallback(() => {
-    const subscribed = localStorage.getItem('aryavarta_subscribed') === 'true';
-    const email = localStorage.getItem('aryavarta_email');
-    const user = localStorage.getItem('aryavarta_username');
-    const authenticated = localStorage.getItem('aryavarta_authenticated') === 'true';
-
-    setIsSubscribed(subscribed);
-    setIsAuthenticated(authenticated && !!email && !!user);
-    
-    if (email) setUserEmail(email);
-    if (user) setUsername(user);
-  }, []);
+  // Derived auth state
+  const isAuthenticated = !authLoading && !!user && !!subscriber;
+  const isSubscribed = !authLoading && !!subscriber;
+  const userEmail = subscriber?.email || '';
+  const username = subscriber?.username || '';
 
   // Recursively add reactions to comments and replies
   const addReactionsToComment = useCallback(async (comment: Comment, email: string): Promise<Comment> => {
@@ -370,15 +358,12 @@ export function CommentSection({ articleSlug, author, authorLocation = 'Texas, U
 
   const loadComments = useCallback(async () => {
     try {
-      const fallbackEmail = localStorage.getItem('aryavarta_email') || '';
-      const currentEmail = userEmail || fallbackEmail;
-
       const response = await fetch(`/api/comments/${articleSlug}`);
       const data = await response.json();
       const commentsData = data.comments || [];
       
       const commentsWithReactions = await Promise.all(
-        commentsData.map(async (comment: Comment) => addReactionsToComment(comment, currentEmail))
+        commentsData.map(async (comment: Comment) => addReactionsToComment(comment, userEmail))
       );
       
       setComments(commentsWithReactions);
@@ -390,12 +375,10 @@ export function CommentSection({ articleSlug, author, authorLocation = 'Texas, U
   }, [addReactionsToComment, articleSlug, userEmail]);
 
   useEffect(() => {
-    checkAuthStatus();
-  }, [articleSlug, checkAuthStatus]);
-
-  useEffect(() => {
-    loadComments();
-  }, [loadComments]);
+    if (!authLoading) {
+      loadComments();
+    }
+  }, [loadComments, authLoading]);
 
   // Helper function to update reactions in nested comments
   const updateCommentReaction = (
@@ -508,8 +491,8 @@ export function CommentSection({ articleSlug, author, authorLocation = 'Texas, U
   };
 
   const handleReaction = async (commentId: string, reactionType: 'like' | 'dislike', commentAuthorEmail: string) => {
-    if (!isAuthenticated || !userEmail) {
-      alert('Please login to react to comments');
+    if (!isAuthenticated) {
+      handleLoginRedirect();
       return;
     }
     
@@ -550,7 +533,6 @@ export function CommentSection({ articleSlug, author, authorLocation = 'Texas, U
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           commentId,
-          userEmail,
           reactionType,
           commentAuthorEmail,
         }),
@@ -601,8 +583,8 @@ export function CommentSection({ articleSlug, author, authorLocation = 'Texas, U
   };
 
   const handleReportComment = async (commentId: string) => {
-    if (!isAuthenticated || !userEmail || !username) {
-      alert('Please login to report comments');
+    if (!isAuthenticated) {
+      handleLoginRedirect();
       return;
     }
 
@@ -624,8 +606,6 @@ export function CommentSection({ articleSlug, author, authorLocation = 'Texas, U
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           commentId,
-          reporterEmail: userEmail,
-          reporterUsername: username,
           reason: 'spam',
         }),
       });
@@ -673,40 +653,10 @@ export function CommentSection({ articleSlug, author, authorLocation = 'Texas, U
     }
   };
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoginError('');
-    setIsLoggingIn(true);
-
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: loginEmail }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Login failed');
-      }
-
-      // Store auth data
-      localStorage.setItem('aryavarta_authenticated', 'true');
-      localStorage.setItem('aryavarta_email', data.user.email);
-      localStorage.setItem('aryavarta_username', data.user.username);
-      localStorage.setItem('aryavarta_subscribed', 'true');
-
-      setIsAuthenticated(true);
-      setUserEmail(data.user.email);
-      setUsername(data.user.username);
-      setShowLoginForm(false);
-      setLoginEmail('');
-    } catch (err) {
-      setLoginError(err instanceof Error ? err.message : 'Login failed');
-    } finally {
-      setIsLoggingIn(false);
-    }
+  const handleLoginRedirect = () => {
+    // Save current article URL to redirect back after login
+    const currentUrl = window.location.pathname;
+    router.push(`/auth/login?redirect=${encodeURIComponent(currentUrl)}`);
   };
 
   const handleSubmitComment = async (e: React.FormEvent) => {
@@ -721,8 +671,6 @@ export function CommentSection({ articleSlug, author, authorLocation = 'Texas, U
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: userEmail,
-          username: username,
           commentText: commentText.trim(),
         }),
       });
@@ -754,8 +702,6 @@ export function CommentSection({ articleSlug, author, authorLocation = 'Texas, U
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: userEmail,
-          username: username,
           commentText: replyText.trim(),
           parentCommentId,
         }),
@@ -923,59 +869,6 @@ export function CommentSection({ articleSlug, author, authorLocation = 'Texas, U
             Subscribe to Aryavarta
           </Link>
         </div>
-      ) : showLoginForm ? (
-        <form onSubmit={handleLogin} className="bg-gradient-to-br from-saffron-50 via-white to-sandalwood-50 rounded-xl p-8 border-2 border-saffron-200 mb-8">
-          <h4 className="text-xl font-bold text-gray-900 mb-4 font-serif text-center">
-            Login to Comment
-          </h4>
-          <p className="text-gray-600 mb-6 text-center text-sm">
-            Enter your subscriber email to start commenting
-          </p>
-          <div className="mb-4">
-            <input
-              type="email"
-              placeholder="your@email.com"
-              value={loginEmail}
-              onChange={(e) => setLoginEmail(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg border border-saffron-300 focus:outline-none focus:ring-2 focus:ring-saffron-500 bg-white"
-              required
-              disabled={isLoggingIn}
-            />
-          </div>
-          {loginError && (
-            <p className="text-sm text-red-600 mb-3">{loginError}</p>
-          )}
-          <div className="flex gap-3">
-            <button
-              type="submit"
-              disabled={isLoggingIn}
-              className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-saffron-600 to-vermillion-600 text-white rounded-lg font-semibold hover:from-saffron-700 hover:to-vermillion-700 transition-all shadow-md hover:shadow-lg disabled:opacity-50"
-            >
-              {isLoggingIn ? (
-                <>
-                  <Loader2 className="animate-spin" size={18} />
-                  Logging in...
-                </>
-              ) : (
-                <>
-                  <LogIn size={18} />
-                  Login
-                </>
-              )}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setShowLoginForm(false);
-                setLoginEmail('');
-                setLoginError('');
-              }}
-              className="px-6 py-3 border-2 border-saffron-300 text-saffron-700 rounded-lg font-semibold hover:bg-saffron-50 transition-all"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
       ) : (
         <div className="bg-gradient-to-br from-saffron-50 via-white to-sandalwood-50 rounded-xl p-8 border-2 border-saffron-200 mb-8 text-center">
           <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -988,7 +881,7 @@ export function CommentSection({ articleSlug, author, authorLocation = 'Texas, U
             Login with your subscriber email to start commenting
           </p>
           <button
-            onClick={() => setShowLoginForm(true)}
+            onClick={handleLoginRedirect}
             className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-saffron-600 to-vermillion-600 text-white rounded-lg font-semibold hover:from-saffron-700 hover:to-vermillion-700 transition-all shadow-md hover:shadow-lg"
           >
             <LogIn size={18} />

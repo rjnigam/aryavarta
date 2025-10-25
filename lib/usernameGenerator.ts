@@ -22,17 +22,18 @@ function randomSuffix(length = 4): string {
 }
 
 function buildCandidate(base?: string | null): string {
-  const safeBase = base && base.length > 1 ? base : null;
-
-  if (safeBase) {
-    return `${safeBase}-${randomSuffix(3)}`;
-  }
-
+  // Always prioritize Sanskrit usernames from the pool
   try {
     const poolName = usernamePool.getRandomUsername();
-    return `${poolName}-${randomSuffix(2)}`;
+    return `${poolName}-${randomSuffix(3)}`;
   } catch (error) {
-    console.warn('Username pool unavailable, falling back to generic handle:', error);
+    console.warn('Username pool unavailable, falling back to base name:', error);
+    
+    // Fall back to base name if pool is unavailable
+    const safeBase = base && base.length > 1 ? base : null;
+    if (safeBase) {
+      return `${safeBase}-${randomSuffix(3)}`;
+    }
   }
 
   return `seeker-${randomSuffix(4)}`;

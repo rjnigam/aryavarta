@@ -1,34 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { getServiceSupabaseClient } from '@/lib/supabaseAdmin';
+import { getUser, getAuthenticatedSubscriber } from '@/lib/supabaseServerAuth';
 
 const REPORT_THRESHOLD = 3;
 const DEFAULT_REASON = 'spam';
 
 export async function POST(request: NextRequest) {
   try {
-    const { commentId, reporterEmail, reporterUsername, reason } = await request.json();
-
-    if (!commentId || !reporterEmail || !reporterUsername) {
+    // Get authenticated user
+    const user = await getUser(request);
+    if (!user) {
       return NextResponse.json(
-        { message: 'Comment ID, reporter email, and reporter username are required' },
-        { status: 400 }
+        { message: 'Authentication required' },
+        { status: 401 }
       );
     }
 
-    const normalizedReason = (reason || DEFAULT_REASON).toString().trim().slice(0, 200) || DEFAULT_REASON;
-
-    const { data: subscriber, error: subscriberError } = await supabase
-      .from('subscribers')
-      .select('email, username, is_active')
-      .eq('email', reporterEmail)
-      .eq('username', reporterUsername)
-      .single();
-
-    if (subscriberError || !subscriber) {
+    // Get subscriber profile
+    const subscriber = await getAuthenticatedSubscriber(request);
+    if (!subscriber) {
       return NextResponse.json(
-        { message: 'Invalid credentials. Please log in again.' },
-        { status: 401 }
+        { message: 'Subscriber profile not found' },
+        { status: 403 }
       );
     }
 
@@ -38,6 +32,19 @@ export async function POST(request: NextRequest) {
         { status: 403 }
       );
     }
+
+    const { commentId, reason } = await request.json();
+    const reporterEmail = subscriber.email;
+    const reporterUsername = subscriber.username;
+
+    if (!commentId) {
+      return NextResponse.json(
+        { message: 'Comment ID is required' },
+        { status: 400 }
+      );
+    }
+
+    const normalizedReason = (reason || DEFAULT_REASON).toString().trim().slice(0, 200) || DEFAULT_REASON;
 
     const { data: comment, error: commentError } = await supabase
       .from('comments')

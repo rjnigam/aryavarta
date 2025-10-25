@@ -52,7 +52,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSubscriber(data.subscriber ?? null);
     } catch (error) {
       // Silently handle auth errors for logged-out users
-      console.debug('No active session:', error);
+      if (error instanceof Error && !error.message.includes('NetworkError')) {
+        console.debug('No active session');
+      }
       setUser(null);
       setSubscriber(null);
     } finally {

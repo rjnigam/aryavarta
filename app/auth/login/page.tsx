@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { signIn, signInWithProvider } from '@/lib/supabaseAuth';
+import { signInWithProvider } from '@/lib/supabaseAuth';
 
 type SupportedSocialProvider = 'google' | 'twitter';
 
@@ -55,12 +55,30 @@ export default function LoginPage() {
         throw new Error('Password must be at least 8 characters');
       }
 
-      // Attempt login
-      await signIn(email, password);
+      // Use API route for login to ensure cookies are properly set
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+        credentials: 'include',
+      });
 
-      // Success - redirect
-      router.push(redirectTo);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || data.error || 'Failed to log in');
+      }
+
+      console.log('Login successful:', data);
+
+      // Wait a moment for the session to propagate
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Success - refresh the page first, then redirect
       router.refresh();
+      router.push(redirectTo);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to log in');
     } finally {

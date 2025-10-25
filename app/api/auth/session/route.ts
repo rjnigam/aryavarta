@@ -43,16 +43,41 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ user: null, subscriber: null }, { status: 200 });
     }
 
-    // Fetch subscriber profile using email (until auth_user_id column is available)
-    const { data: subscriber, error: profileError } = await supabase
+    // Fetch subscriber profile - first try auth_user_id, then email
+    let subscriber = null;
+    
+    // Try auth_user_id first
+    const { data: authSubscriber, error: authError } = await supabase
       .from('subscribers')
       .select('id, email, name, username, is_active, subscribed_at')
-      .eq('email', user.email)
-      .single();
+      .eq('auth_user_id', user.id)
+      .maybeSingle();
 
-    if (profileError) {
-      console.error('Failed to fetch subscriber profile:', profileError);
-      return NextResponse.json({ user: null, subscriber: null }, { status: 200 });
+    if (!authError && authSubscriber) {
+      subscriber = authSubscriber;
+    } else if (user.email) {
+      // Fallback to email lookup
+      const { data: emailSubscriber, error: emailError } = await supabase
+        .from('subscribers')
+        .select('id, email, name, username, is_active, subscribed_at')
+        .eq('email', user.email)
+        .maybeSingle();
+      
+      if (!emailError && emailSubscriber) {
+        subscriber = emailSubscriber;
+      }
+    }
+
+    // If no subscriber found, that's OK - they might be a new user
+    if (!subscriber) {
+      return NextResponse.json({
+        user: {
+          id: user.id,
+          email: user.email,
+          emailVerified: user.email_confirmed_at !== null,
+        },
+        subscriber: null,
+      }, { status: 200 });
     }
 
     const subscriberPayload = {

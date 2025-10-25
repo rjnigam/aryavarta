@@ -28,8 +28,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create Supabase client for server-side
-    const response = NextResponse.next();
+    // Create the response we'll return (with cookies)
+    const response = NextResponse.json({ processing: true });
+    
+    // Create Supabase client for server-side with cookie handling
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -39,17 +41,25 @@ export async function POST(request: NextRequest) {
             return request.cookies.get(name)?.value;
           },
           set(name: string, value: string, options: CookieOptions) {
+            // IMPORTANT: Set cookies on the response object with consistent settings
             response.cookies.set({
               name,
               value,
               ...options,
+              sameSite: 'lax',
+              secure: false, // Use false for localhost
+              path: '/',
             });
           },
           remove(name: string, options: CookieOptions) {
             response.cookies.set({
               name,
               value: '',
+              expires: new Date(0), // Set to past date to ensure removal
               ...options,
+              sameSite: 'lax',
+              secure: false, // Use false for localhost
+              path: '/',
             });
           },
         },
@@ -89,68 +99,55 @@ export async function POST(request: NextRequest) {
     }
 
     if (!subscriber) {
+      // If no subscriber exists, create a minimal record but don't fail login
       const metadata = authData.user.user_metadata ?? {};
       const derivedName = (metadata.name as string | undefined)?.trim() || email.split('@')[0];
       const derivedUsername = metadata.username as string | undefined;
 
-      const username = derivedUsername || (await generateUniqueUsername(supabase, { baseName: derivedName }));
+      const username = derivedUsername || (await generateUniqueUsername(null, { baseName: derivedName }));
 
-      const insertPayload = {
+      // Create a minimal subscriber object for the response
+      subscriber = {
         email: authData.user.email,
         name: derivedName,
         username,
         is_active: true,
-        auth_user_id: authData.user.id,
         email_verified: !!authData.user.email_confirmed_at,
+        auth_user_id: authData.user.id,
       };
 
-      const { data: createdSubscriber, error: createError } = await supabase
-        .from('subscribers')
-        .insert(insertPayload)
-        .select('username, email, name, is_active, email_verified, auth_user_id')
-        .single();
+      // Try to create the subscriber record in the background
+      // Don't fail the login if this fails - we'll create it later
+      try {
+        const serviceSupabase = getServiceSupabaseClient();
+        const { error: serviceError } = await serviceSupabase
+          .from('subscribers')
+          .insert({
+            email: authData.user.email,
+            name: derivedName,
+            username,
+            is_active: true,
+            auth_user_id: authData.user.id,
+            email_verified: !!authData.user.email_confirmed_at,
+          });
 
-      if (createError) {
-        console.error('Failed to create subscriber via session-scoped client:', createError);
-
-        try {
-          const serviceSupabase = getServiceSupabaseClient();
-          const { data: serviceSubscriber, error: serviceError } = await serviceSupabase
-            .from('subscribers')
-            .insert(insertPayload)
-            .select('username, email, name, is_active, email_verified, auth_user_id')
-            .single();
-
-          if (serviceError) {
-            console.error('Service client subscriber creation failed:', serviceError);
-            return NextResponse.json(
-              { error: 'Account profile could not be created. Please contact support.' },
-              { status: 500 }
-            );
-          }
-
-          subscriber = serviceSubscriber;
-        } catch (adminError) {
-          console.error('Service client unavailable for subscriber creation:', adminError);
-          return NextResponse.json(
-            { error: 'Account profile could not be created. Please contact support.' },
-            { status: 500 }
-          );
+        if (serviceError) {
+          console.error('Background subscriber creation failed:', serviceError);
+          // Don't fail login - subscriber record will be created on next interaction
         }
-      } else {
-        subscriber = createdSubscriber;
+      } catch (error) {
+        console.error('Service client error during subscriber creation:', error);
+        // Continue with login anyway
       }
     }
 
-    if (!subscriber.is_active) {
+      if (subscriber && !subscriber.is_active) {
       return NextResponse.json(
-        { error: 'Your account is not active. Please contact support.' },
+        { message: 'Your account is not active. Please contact support.' },
         { status: 403 }
       );
-    }
-
-    // Sync subscriber metadata with Supabase Auth records
-    if ((subscriber.email_verified !== undefined && !subscriber.email_verified) || !subscriber.auth_user_id) {
+    }    // Sync subscriber metadata with Supabase Auth records only if subscriber exists in DB
+    if (subscriber && 'id' in subscriber && ((subscriber.email_verified !== undefined && !subscriber.email_verified) || !subscriber.auth_user_id)) {
       if (authData.user.email_confirmed_at) {
         await supabase
           .from('subscribers')
@@ -167,22 +164,26 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json(
-      {
-        message: 'Successfully logged in',
-        user: {
-          id: authData.user.id,
-          email: subscriber.email,
-          name: subscriber.name,
-          username: subscriber.username,
-        },
-        session: {
-          access_token: authData.session.access_token,
-          expires_at: authData.session.expires_at,
-        },
+    // Update the response body (the response object already has cookies set by Supabase)
+    const responseBody = {
+      message: 'Successfully logged in',
+      user: {
+        id: authData.user.id,
+        email: subscriber.email,
+        name: subscriber.name,
+        username: subscriber.username,
       },
-      { status: 200 }
-    );
+      session: {
+        access_token: authData.session.access_token,
+        expires_at: authData.session.expires_at,
+      },
+    };
+
+    // Return a new response with the body and headers from our cookie-enabled response
+    return NextResponse.json(responseBody, {
+      status: 200,
+      headers: response.headers,
+    });
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json(

@@ -10,15 +10,16 @@ export async function GET(request: NextRequest) {
   const code = requestUrl.searchParams.get('code');
   const next = requestUrl.searchParams.get('next') || '/';
   const type = requestUrl.searchParams.get('type');
+  
+  console.log('[Auth Callback] Processing callback:', {
+    code: code ? 'present' : 'missing',
+    next,
+    type,
+  });
 
   if (code) {
-    const redirectTarget = type === 'signup' ? '/auth/login' : next;
-    const redirectUrl = new URL(redirectTarget, request.url);
-    if (type === 'signup') {
-      redirectUrl.searchParams.set('verification', 'true');
-    }
-    const response = NextResponse.redirect(redirectUrl);
-
+    const response = new NextResponse();
+    
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -45,17 +46,20 @@ export async function GET(request: NextRequest) {
       }
     );
 
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const { error, data } = await supabase.auth.exchangeCodeForSession(code);
 
     if (error) {
-      console.error('Auth callback error:', error);
-      if (type === 'signup') {
-        redirectUrl.searchParams.set('verification', 'false');
-      } else {
-        redirectUrl.searchParams.set('error', 'auth-callback');
-      }
-      return NextResponse.redirect(redirectUrl);
+      console.error('[Auth Callback] Exchange code error:', error);
+      // Redirect to login with error message
+      const errorUrl = new URL('/auth/login', request.url);
+      errorUrl.searchParams.set('error', 'verification-failed');
+      return NextResponse.redirect(errorUrl);
     }
+    
+    console.log('[Auth Callback] Code exchanged successfully:', {
+      hasSession: !!data?.session,
+      hasUser: !!data?.user,
+    });
 
     // After successful email verification, update subscriber record
     const { data: { user } } = await supabase.auth.getUser();
@@ -68,7 +72,18 @@ export async function GET(request: NextRequest) {
         .eq('email', user.email);
     }
 
-    return response;
+    // Determine where to redirect after successful verification
+    let redirectUrl: URL;
+    if (type === 'signup' && user?.email_confirmed_at) {
+      // After signup verification, redirect to home page (user is now logged in)
+      redirectUrl = new URL('/', request.url);
+      redirectUrl.searchParams.set('welcome', 'true');
+    } else {
+      // For other callbacks (password reset, etc.) use the next parameter or default to home
+      redirectUrl = new URL(next, request.url);
+    }
+    
+    return NextResponse.redirect(redirectUrl);
   }
 
   // No code present, redirect to home
