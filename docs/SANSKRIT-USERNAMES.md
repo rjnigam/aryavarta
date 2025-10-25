@@ -30,16 +30,20 @@ atman_brahman
 - Maximum possible: 79 × 79 = 6,241 combinations
 
 ### 3. Assignment Process
-1. User subscribes
-2. System picks random username from pool
-3. Checks database for uniqueness
-4. If taken, tries another (up to 20 attempts)
-5. Assigns first available username
+| Flow | Trigger | Username Source |
+| --- | --- | --- |
+| Supabase Auth Signup | `/app/api/auth/signup/route.ts` | `generateUniqueUsername()` helper (Sanskrit pool) |
+| Newsletter Subscribe | `/app/api/subscribe/route.ts` | `generateUniqueUsername()` helper |
+
+Shared logic lives in `lib/usernameGenerator.ts`. It selects candidates from `scripts/username_pool.txt`, checks Supabase for collisions, and retries up to 25 times before failing.
 
 ### 4. Database Storage
 - Stored in `subscribers.username` column (unique constraint)
 - Indexed for fast lookups
-- Used for future commenting feature
+- Consumed by AuthContext, personalized hero banner, and the user menu
+- If you followed the Phase 6 migration, also link rows to `auth_user_id` for richer auth guards
+
+> **Setup Check:** If your subscribers table doesn’t have a `username` column yet, run `docs/ADD-USERNAME-MIGRATION.sql` in the Supabase SQL editor before testing signup.
 
 ## Scaling the Pool
 

@@ -86,6 +86,30 @@ NEXT_PUBLIC_SITE_URL=https://arya-varta.in
 
 ---
 
+### 4. Moderator Dashboard Access
+
+Basic authentication protects the moderation dashboard UI and APIs. Configure separate credentials per environment and rotate them periodically.
+
+#### `MODERATION_DASHBOARD_USER`
+- **Purpose**: Username required for `/moderation` and `/api/moderation/*`
+- **Type**: Secret (server-only)
+- **Format**: Short identifier such as `moderator-team`
+- **Where to Configure**: `.env.local` for development, Vercel environment variables for preview/production
+
+#### `MODERATION_DASHBOARD_PASSWORD`
+- **Purpose**: Password paired with the username above
+- **Type**: Secret (server-only)
+- **Format**: Strong passphrase (≥16 characters, mix of letters/numbers/symbols)
+- **Where to Configure**: `.env.local` locally, Vercel environment variables in the dashboard
+
+**Example:**
+```bash
+MODERATION_DASHBOARD_USER=moderator-team
+MODERATION_DASHBOARD_PASSWORD=super-secret-passphrase
+```
+
+---
+
 ## Environment Files
 
 ### Local Development: `.env.local`
@@ -102,6 +126,10 @@ RESEND_API_KEY=re_your_resend_key_here
 
 # Site URL (local)
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
+
+# Moderator dashboard access
+MODERATION_DASHBOARD_USER=moderator-team
+MODERATION_DASHBOARD_PASSWORD=super-secret-passphrase
 ```
 
 ⚠️ **Never commit this file!** Ensure `.gitignore` includes:
@@ -124,6 +152,8 @@ Set via Vercel Dashboard:
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `eyJ...` | ✅ Production ✅ Preview ✅ Development |
 | `RESEND_API_KEY` | `re_xxx` | ✅ Production ✅ Preview ✅ Development |
 | `NEXT_PUBLIC_SITE_URL` | `https://arya-varta.in` | ✅ Production only |
+| `MODERATION_DASHBOARD_USER` | `moderator-team` | ✅ Production ✅ Preview ✅ Development |
+| `MODERATION_DASHBOARD_PASSWORD` | `********` | ✅ Production ✅ Preview ✅ Development |
 
 ---
 
@@ -209,6 +239,8 @@ declare namespace NodeJS {
     NEXT_PUBLIC_SUPABASE_ANON_KEY: string
     RESEND_API_KEY: string
     NEXT_PUBLIC_SITE_URL: string
+    MODERATION_DASHBOARD_USER: string
+    MODERATION_DASHBOARD_PASSWORD: string
   }
 }
 ```
@@ -306,13 +338,14 @@ For Vercel:
 Before deployment:
 
 - [ ] ✅ `.env.local` created locally
-- [ ] ✅ All 4 required variables set
+- [ ] ✅ All required variables set (Supabase, Resend, Site URL, Moderator credentials)
 - [ ] ✅ `.env.local` in `.gitignore`
 - [ ] ✅ Vercel environment variables configured
 - [ ] ✅ Variables set for Production, Preview, Development
 - [ ] ✅ Supabase URL and anon key correct
 - [ ] ✅ Resend API key valid
 - [ ] ✅ Site URL matches production domain
+- [ ] ✅ Moderator dashboard basic auth configured and tested
 - [ ] ✅ No hardcoded secrets in code
 - [ ] ✅ Environment variables validated on app startup
 
@@ -398,6 +431,13 @@ RESEND_API_KEY=re_A1b2C3d4_X9Y8Z7W6V5U4T3S2R1Q0P9O8N7M6L5K
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 
 # ------------------------------------------
+# Moderator Dashboard Access
+# ------------------------------------------
+# Basic auth credentials for /moderation and /api/moderation/*
+MODERATION_DASHBOARD_USER=moderator-team
+MODERATION_DASHBOARD_PASSWORD=super-secret-passphrase
+
+# ------------------------------------------
 # Optional: Additional Configuration
 # ------------------------------------------
 # NODE_ENV=development
@@ -413,7 +453,7 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 1. **Use Password Manager**:
    - Store in 1Password, LastPass, Bitwarden
    - Create secure note: "Aryavarta Environment Variables"
-   - Include all 4 variables
+  - Include all required variables (Supabase, Resend, Site URL, Moderator credentials)
 
 2. **Team Access**:
    - Share via password manager (not email!)

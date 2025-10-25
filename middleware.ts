@@ -1,0 +1,57 @@
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+
+const MODERATION_USER = process.env.MODERATION_DASHBOARD_USER;
+const MODERATION_PASSWORD = process.env.MODERATION_DASHBOARD_PASSWORD;
+
+function unauthorizedResponse() {
+  return new NextResponse('Authentication required', {
+    status: 401,
+    headers: {
+      'WWW-Authenticate': 'Basic realm="Moderator Dashboard", charset="UTF-8"',
+    },
+  });
+}
+
+export function middleware(request: NextRequest) {
+  if (!MODERATION_USER || !MODERATION_PASSWORD) {
+    console.error('[moderation.auth] Missing MODERATION_DASHBOARD_USER or MODERATION_DASHBOARD_PASSWORD');
+    return new NextResponse('Moderator dashboard credentials not configured', { status: 500 });
+  }
+
+  const authorization = request.headers.get('authorization');
+  if (!authorization) {
+    return unauthorizedResponse();
+  }
+
+  const [scheme, encoded] = authorization.split(' ');
+  if (scheme !== 'Basic' || !encoded) {
+    return unauthorizedResponse();
+  }
+
+  let decoded = '';
+  try {
+    decoded = atob(encoded);
+  } catch (error) {
+    console.warn('[moderation.auth] Failed to decode authorization header', error);
+    return unauthorizedResponse();
+  }
+
+  const separatorIndex = decoded.indexOf(':');
+  if (separatorIndex === -1) {
+    return unauthorizedResponse();
+  }
+
+  const username = decoded.slice(0, separatorIndex);
+  const password = decoded.slice(separatorIndex + 1);
+
+  if (username === MODERATION_USER && password === MODERATION_PASSWORD) {
+    return NextResponse.next();
+  }
+
+  return unauthorizedResponse();
+}
+
+export const config = {
+  matcher: ['/moderation/:path*', '/api/moderation/:path*'],
+};

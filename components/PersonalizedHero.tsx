@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { BookOpen, CheckCircle, Sparkles } from 'lucide-react';
 import Link from 'next/link';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Article {
   slug: string;
@@ -14,57 +15,52 @@ interface Article {
 }
 
 export function PersonalizedHero() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [username, setUsername] = useState('');
+  const { user, subscriber, loading: authLoading } = useAuth();
   const [unreadArticle, setUnreadArticle] = useState<Article | null>(null);
   const [readCount, setReadCount] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const checkAuthAndLoadUnread = async () => {
-      const authenticated = localStorage.getItem('aryavarta_authenticated') === 'true';
-      const email = localStorage.getItem('aryavarta_email');
-      const user = localStorage.getItem('aryavarta_username');
-
-      setIsAuthenticated(authenticated);
-      if (user) setUsername(user);
-
-      if (authenticated && email) {
-        try {
-          const response = await fetch(`/api/unread-articles?email=${encodeURIComponent(email)}`);
-          
-          if (!response.ok) {
-            console.error('API error:', response.status);
-            // Keep authenticated state but don't show personalized content
-            setIsLoading(false);
-            return;
-          }
-
-          const data = await response.json();
-
-          if (data.unreadArticles && data.unreadArticles.length > 0) {
-            // Get a random unread article
-            const randomIndex = Math.floor(Math.random() * data.unreadArticles.length);
-            setUnreadArticle(data.unreadArticles[randomIndex]);
-          }
-
-          setReadCount(data.readCount || 0);
-          setTotalCount(data.totalArticles || 0);
-        } catch (error) {
-          console.error('Failed to load unread articles:', error);
-          // Keep authenticated state
-        }
+    const loadUnreadArticles = async () => {
+      if (!user || !subscriber) {
+        setIsLoading(false);
+        return;
       }
 
-      setIsLoading(false);
+      try {
+        const response = await fetch(`/api/unread-articles?email=${encodeURIComponent(subscriber.email)}`);
+        
+        if (!response.ok) {
+          console.error('API error:', response.status);
+          setIsLoading(false);
+          return;
+        }
+
+        const data = await response.json();
+
+        if (data.unreadArticles && data.unreadArticles.length > 0) {
+          // Get a random unread article
+          const randomIndex = Math.floor(Math.random() * data.unreadArticles.length);
+          setUnreadArticle(data.unreadArticles[randomIndex]);
+        }
+
+        setReadCount(data.readCount || 0);
+        setTotalCount(data.totalArticles || 0);
+      } catch (error) {
+        console.error('Failed to load unread articles:', error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    checkAuthAndLoadUnread();
-  }, []);
+    if (!authLoading) {
+      loadUnreadArticles();
+    }
+  }, [user, subscriber, authLoading]);
 
   // Show default hero for non-authenticated users or while loading
-  if (!isAuthenticated || isLoading) {
+  if (!user || !subscriber || isLoading || authLoading) {
     return (
       <section className="relative py-24 px-4 overflow-hidden">
         {/* Decorative Elements */}
@@ -91,7 +87,7 @@ export function PersonalizedHero() {
             In an age of unprecedented comfort yet persistent emptiness, rediscover the philosophical wisdom that helps us lead meaningful lives — free from dogma, rich in insight.
           </p>
 
-          {!isLoading && !isAuthenticated && (
+          {!isLoading && !authLoading && !user && (
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link
                 href="/subscribe"
@@ -109,7 +105,7 @@ export function PersonalizedHero() {
             </div>
           )}
           
-          {!isLoading && isAuthenticated && (
+          {!isLoading && !authLoading && user && (
             <Link
               href="/articles"
               className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-saffron-600 to-vermillion-600 text-white rounded-xl font-semibold text-lg hover:from-saffron-700 hover:to-vermillion-700 transition-all shadow-lg hover:shadow-xl hover:scale-105"
@@ -143,7 +139,7 @@ export function PersonalizedHero() {
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-100 to-emerald-100 rounded-full mb-4 shadow-sm border border-green-200">
               <CheckCircle className="text-green-700" size={18} />
               <span className="text-sm font-semibold text-green-800">
-                Welcome back, {username}! 🙏
+                Welcome back, {subscriber.username}! 🙏
               </span>
             </div>
             <p className="text-gray-600">
@@ -220,7 +216,7 @@ export function PersonalizedHero() {
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-100 to-emerald-100 rounded-full mb-6 shadow-sm border border-green-200">
           <CheckCircle className="text-green-700" size={18} />
           <span className="text-sm font-semibold text-green-800">
-            Welcome back, {username}! 🙏
+            Welcome back, {subscriber.username}! 🙏
           </span>
         </div>
 
