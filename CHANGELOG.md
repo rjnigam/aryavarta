@@ -7,6 +7,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0] - 2025-10-23
 
+## [1.2.0] - 2025-10-25
+
+### Fixed
+- **Critical login flow issue**: Changed post-login redirect to use `window.location.href` instead of `router.push()` to ensure immediate session recognition
+  - Eliminated delay where users saw "Sign in/Sign up" buttons after successful login
+  - Fixed race condition between router navigation and AuthContext session loading
+  - Users now see logged-in state immediately without waiting or tab switching
+
+- **404 console errors**: Created missing route pages to eliminate browser errors
+  - Added `/profile` page with user profile display and account information
+  - Added `/settings` page with account, notification, and privacy settings (placeholders)
+  - Added `/my-comments` page for viewing user's comment history (placeholder)
+  - All pages include auth protection, loading states, and "coming soon" messaging
+
+### Added
+- **Profile page** (`/app/profile/page.tsx`)
+  - Displays user avatar, name, username, and email
+  - Shows account status (active/inactive) and email verification status
+  - Member since date display
+  - Lists planned features for future implementation
+
+- **Settings page** (`/app/settings/page.tsx`)
+  - Account settings section (email, password)
+  - Notification preferences (newsletter, comment replies)
+  - Privacy controls (profile visibility)
+  - Danger zone (account deletion)
+  - All controls currently disabled with "coming soon" notice
+
+- **My Comments page** (`/app/my-comments/page.tsx`)
+  - Empty state with friendly messaging
+  - Link to browse articles
+  - Lists planned comment management features
+
+### Documentation
+- Added `docs/LOGIN-FLOW-FIX-OCT25.md` with detailed technical explanation
+- Updated `docs/project-ops/progress-history.md` with today's fixes
+
+### Technical Details
+- Login redirect now uses full page reload for reliable session synchronization
+- All new pages follow Aryavarta design system (saffron colors, dharmic aesthetic)
+- Proper loading states and auth guards on all protected routes
+- Redirect to login with return URL for unauthenticated access
+
 ## [1.1.0] - 2025-10-23
 
 ### Added

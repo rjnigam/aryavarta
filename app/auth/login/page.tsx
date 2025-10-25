@@ -73,12 +73,9 @@ function LoginForm() {
 
       console.log('Login successful:', data);
 
-      // Wait a moment for the session to propagate
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      // Success - refresh the page first, then redirect
-      router.refresh();
-      router.push(redirectTo);
+      // Force a full page reload to ensure AuthContext picks up the session
+      // This is more reliable than router.refresh() + router.push()
+      window.location.href = redirectTo;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to log in');
     } finally {
