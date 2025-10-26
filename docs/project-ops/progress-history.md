@@ -19,7 +19,7 @@ This log summarizes the project’s major milestones and the most recent enginee
 - Fixed password recovery flow by properly exchanging Supabase recovery tokens for sessions on callback.
 - Updated `AuthContext` to centralize session fetching and improve loading states in the UI (`UserMenu`).
 
-## 2025-10-25: Operational Resilience Pass & Login Flow Fix
+## 2025-10-25: Operational Resilience Pass & Critical Bug Fixes
 
 - Reworked username allocation to use deterministic slugs with random suffixes when pool lookups fail, preventing signup outages when service credentials are unavailable.
 - Shifted subscriber profile materialization to first login, with admin-client fallback to respect Row Level Security.
@@ -27,6 +27,7 @@ This log summarizes the project’s major milestones and the most recent enginee
 - Began assembling this operational knowledge base (`docs/project-ops`).
 - **Fixed critical login flow issue**: Changed post-login redirect to use `window.location.href` instead of `router.push()` to ensure AuthContext properly loads session data immediately.
 - Created placeholder pages for `/profile`, `/settings`, and `/my-comments` to eliminate 404 errors and prepare for future feature implementation.
+- **Fixed critical username mismatch bug**: Subscriber records now created immediately during signup, ensuring username consistency between verification email and post-login UI. Added logging to track username source and improved metadata handling at login.
 
 ## Ongoing
 

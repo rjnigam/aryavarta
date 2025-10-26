@@ -122,6 +122,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Create subscriber record immediately after auth user creation
+    try {
+      const { error: subscriberError } = await supabase
+        .from('subscribers')
+        .insert({
+          email: authData.user.email!,
+          name: name.trim(),
+          username,
+          is_active: true,
+          auth_user_id: authData.user.id,
+          email_verified: false, // Will be updated after email verification
+        });
+
+      if (subscriberError) {
+        console.error('Failed to create subscriber record:', subscriberError);
+        // Don't fail the signup, but log the error
+        // The login flow will create it if missing
+      }
+    } catch (subscriberCreationError) {
+      console.error('Subscriber creation error:', subscriberCreationError);
+      // Continue with signup even if subscriber creation fails
+    }
+
     if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== 'your_resend_api_key_here') {
       try {
         await sendVerificationEmail({

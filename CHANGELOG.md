@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0] - 2025-10-23
 
+## [1.2.1] - 2025-10-25
+
+### Fixed
+- **Critical username mismatch bug**: Username shown in verification email now matches username displayed after login
+  - Fixed by creating subscriber record immediately during signup instead of waiting for first login
+  - Improved metadata handling to always prefer username from signup
+  - Added logging to track username source for debugging
+  - Eliminated race condition between signup email and database record creation
+
+### Changed
+- Signup flow now creates subscriber database record atomically with auth user creation
+- Login flow adds detailed logging when creating missing subscriber records
+- Better error handling for subscriber creation failures
+
+### Technical Details
+- Subscriber record now created in `/api/auth/signup` with `email_verified: false`
+- Login route prioritizes `user_metadata.username` over generating new username
+- Added console logs to track username source (metadata vs generated)
+- Backward compatible - existing users unaffected
+
 ## [1.2.0] - 2025-10-25
 
 ### Fixed

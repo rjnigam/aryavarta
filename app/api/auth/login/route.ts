@@ -104,7 +104,16 @@ export async function POST(request: NextRequest) {
       const derivedName = (metadata.name as string | undefined)?.trim() || email.split('@')[0];
       const derivedUsername = metadata.username as string | undefined;
 
+      // IMPORTANT: Always use the username from metadata if it exists
+      // This ensures consistency with the signup email
       const username = derivedUsername || (await generateUniqueUsername(null, { baseName: derivedName }));
+
+      console.log('Creating subscriber record for first login:', {
+        email: authData.user.email,
+        username,
+        usernameSource: derivedUsername ? 'metadata' : 'generated',
+        metadata: metadata.username,
+      });
 
       // Create a minimal subscriber object for the response
       subscriber = {
