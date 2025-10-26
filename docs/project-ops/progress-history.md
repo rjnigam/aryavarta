@@ -36,3 +36,15 @@ This log summarizes the project’s major milestones and the most recent enginee
 - Analytics integration (Vercel, Plausible, etc.) remains optional until subscriber base grows.
 
 _Update this file whenever a meaningful milestone ships or a production incident occurs._
+
+## 2025-10-26: Subscriber Profile Parity Migration
+
+- Created comprehensive SQL migration (`SUBSCRIBER-PROFILE-PARITY.sql`) to ensure subscribers table stays in sync with Supabase Auth
+- Backfills missing `auth_user_id` links by matching subscriber emails to auth.users
+- Syncs `email_verified` status between subscribers and auth.users tables
+- Verifies existing database triggers (`on_auth_user_created`, `on_auth_user_updated`) are functioning
+- Ensures all subscribers have proper `created_at` and `updated_at` timestamps
+- Created implementation guide (`SUBSCRIBER-PROFILE-PARITY-GUIDE.md`) with troubleshooting steps
+- **Status**: Ready to run in Supabase SQL Editor - will complete the "Subscriber profile parity" roadmap item from Immediate priorities
+
+_Update this file whenever a meaningful milestone ships or a production incident occurs._
