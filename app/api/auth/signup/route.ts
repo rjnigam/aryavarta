@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { generateUniqueUsername } from '@/lib/usernameGenerator';
 import { getUnmetPasswordRequirements } from '@/lib/passwordPolicy';
-import { sendVerificationEmail } from '@/lib/email/sendVerificationEmail';
 
 export async function POST(request: NextRequest) {
   try {
@@ -75,7 +74,7 @@ export async function POST(request: NextRequest) {
       }
     );
 
-    // Check if user already exists
+    // Check if user already exists in subscribers table
     const { data: existingSubscriber } = await supabase
       .from('subscribers')
       .select('email')
@@ -86,6 +85,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: 'An account with this email already exists. Please log in.',
+        },
+        { status: 400 }
+      );
+    }
+
+    // IMPORTANT: Also check auth.users table using admin client
+    // This prevents the silent failure when email exists in auth but not subscribers
+    const { getServiceSupabaseClient } = await import('@/lib/supabaseAdmin');
+    const supabaseAdmin = getServiceSupabaseClient();
+    
+    const { data: existingAuthUser } = await supabaseAdmin.auth.admin.listUsers();
+    const emailExists = existingAuthUser?.users.some(user => user.email === email);
+    
+    if (emailExists) {
+      return NextResponse.json(
+        {
+          error: 'An account with this email already exists. Please log in or use a different email.',
         },
         { status: 400 }
       );
@@ -145,18 +161,8 @@ export async function POST(request: NextRequest) {
       // Continue with signup even if subscriber creation fails
     }
 
-    if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== 'your_resend_api_key_here') {
-      try {
-        await sendVerificationEmail({
-          email: authData.user.email!,
-          name: name.trim(),
-          username,
-          reason: 'signup',
-        });
-      } catch (fallbackEmailError) {
-        console.warn('Resend fallback verification email failed:', fallbackEmailError);
-      }
-    }
+    // Email is now handled by Supabase SMTP configuration
+    // No need to send custom email here
 
     return NextResponse.json(
       {
