@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 
 /**
- * Auth callback handler for email verification and password resets
+ * Auth callback handler for email verification, password resets, and OAuth
  * This route processes OAuth callbacks and email confirmation links
  */
 export async function GET(request: NextRequest) {
@@ -59,27 +59,72 @@ export async function GET(request: NextRequest) {
     console.log('[Auth Callback] Code exchanged successfully:', {
       hasSession: !!data?.session,
       hasUser: !!data?.user,
+      provider: data?.user?.app_metadata?.provider,
     });
 
-    // After successful email verification, update subscriber record
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (user && user.email_confirmed_at) {
-      // Update email_verified in subscribers table
-      await supabase
+    if (user) {
+      // Check if subscriber profile exists
+      const { data: existingSubscriber } = await supabase
         .from('subscribers')
-        .update({ email_verified: true })
-        .eq('email', user.email);
+        .select('id')
+        .eq('email', user.email!)
+        .maybeSingle();
+
+      if (!existingSubscriber) {
+        // Create subscriber profile for OAuth user
+        console.log('[Auth Callback] Creating subscriber profile for OAuth user');
+        
+        // Get or generate username
+        const { generateUniqueUsername } = await import('@/lib/usernameGenerator');
+        const name = user.user_metadata?.full_name || 
+                     user.user_metadata?.name || 
+                     user.email?.split('@')[0] || 
+                     'user';
+        
+        const username = await generateUniqueUsername(supabase, { baseName: name });
+
+        try {
+          const { error: insertError } = await supabase
+            .from('subscribers')
+            .insert({
+              email: user.email!,
+              name: name,
+              username: username,
+              is_active: true,
+              auth_user_id: user.id,
+              email_verified: user.email_confirmed_at ? true : false,
+            });
+
+          if (insertError) {
+            console.error('[Auth Callback] Failed to create subscriber:', insertError);
+          } else {
+            console.log('[Auth Callback] Subscriber profile created successfully');
+          }
+        } catch (err) {
+          console.error('[Auth Callback] Subscriber creation error:', err);
+        }
+      } else if (user.email_confirmed_at) {
+        // Update email_verified for existing users
+        await supabase
+          .from('subscribers')
+          .update({ email_verified: true })
+          .eq('email', user.email!);
+      }
     }
 
     // Determine where to redirect after successful verification
     let redirectUrl: URL;
     if (type === 'signup' && user?.email_confirmed_at) {
-      // After signup verification, redirect to home page (user is now logged in)
+      // After signup verification, redirect to home page with welcome message
       redirectUrl = new URL('/', request.url);
       redirectUrl.searchParams.set('welcome', 'true');
+    } else if (data?.user?.app_metadata?.provider) {
+      // OAuth sign-in, redirect to home
+      redirectUrl = new URL('/', request.url);
     } else {
-      // For other callbacks (password reset, etc.) use the next parameter or default to home
+      // For other callbacks (password reset, etc.) use the next parameter
       redirectUrl = new URL(next, request.url);
     }
     

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { signUp } from '@/lib/supabaseAuth';
+import { signUp, signInWithProvider } from '@/lib/supabaseAuth';
 import {
   PASSWORD_REQUIREMENTS,
   getPasswordStrengthMeta,
@@ -20,6 +20,7 @@ export default function SignupPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [socialLoading, setSocialLoading] = useState<'google' | 'twitter' | null>(null);
   const [resendLoading, setResendLoading] = useState(false);
   const [resendFeedback, setResendFeedback] = useState<
     { type: 'success' | 'error'; message: string } | null
@@ -31,6 +32,24 @@ export default function SignupPage() {
     met: req.test(password),
   }));
   const allRequirementsMet = requirementStates.every((req) => req.met);
+
+  const handleProviderSignIn = async (provider: 'google' | 'twitter') => {
+    setError('');
+    setSocialLoading(provider);
+
+    try {
+      await signInWithProvider(provider);
+      // Redirect handled by Supabase OAuth flow
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : `Unable to sign up with ${provider === 'google' ? 'Google' : 'Twitter'}`
+      );
+    } finally {
+      setSocialLoading(null);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -190,6 +209,32 @@ export default function SignupPage() {
               <span className="block sm:inline">{error}</span>
             </div>
           )}
+
+          {/* OAuth Buttons */}
+          <div className="space-y-3">
+            <button
+              type="button"
+              onClick={() => handleProviderSignIn('google')}
+              disabled={loading || socialLoading !== null}
+              className="w-full inline-flex items-center justify-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {socialLoading === 'google' ? 'Redirecting to Google…' : 'Sign up with Google'}
+            </button>
+            <button
+              type="button"
+              onClick={() => handleProviderSignIn('twitter')}
+              disabled={loading || socialLoading !== null}
+              className="w-full inline-flex items-center justify-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {socialLoading === 'twitter' ? 'Redirecting to Twitter…' : 'Sign up with Twitter'}
+            </button>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <span className="h-px flex-1 bg-gray-200" />
+            <span className="text-xs uppercase tracking-wider text-gray-400">Or sign up with email</span>
+            <span className="h-px flex-1 bg-gray-200" />
+          </div>
 
           <div className="space-y-4">
             {/* Name */}
