@@ -62,6 +62,60 @@ export async function GET(request: NextRequest) {
       provider: data?.user?.app_metadata?.provider,
     });
 
+    // AUTO-CONFIRM OAUTH USERS
+    // Since OAuth providers (like Google) already verify emails,
+    // we don't need users to confirm their email again
+    if (data?.user) {
+      const isOAuthUser = data.user.app_metadata?.provider === 'google';
+      const emailNotConfirmed = !data.user.email_confirmed_at;
+      
+      if (isOAuthUser && emailNotConfirmed) {
+        console.log('[Auth Callback] Auto-confirming OAuth user email');
+        
+        // Use admin client to confirm email
+        const supabaseAdmin = createServerClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY!,
+          {
+            cookies: {
+              get(name: string) {
+                return request.cookies.get(name)?.value;
+              },
+              set(name: string, value: string, options: CookieOptions) {
+                response.cookies.set({
+                  name,
+                  value,
+                  ...options,
+                });
+              },
+              remove(name: string, options: CookieOptions) {
+                response.cookies.set({
+                  name,
+                  value: '',
+                  ...options,
+                });
+              },
+            },
+          }
+        );
+
+        try {
+          const { error: confirmError } = await supabaseAdmin.auth.admin.updateUserById(
+            data.user.id,
+            { email_confirm: true }
+          );
+          
+          if (confirmError) {
+            console.error('[Auth Callback] Failed to auto-confirm email:', confirmError);
+          } else {
+            console.log('[Auth Callback] OAuth user email auto-confirmed successfully');
+          }
+        } catch (err) {
+          console.error('[Auth Callback] Error auto-confirming email:', err);
+        }
+      }
+    }
+
     const { data: { user } } = await supabase.auth.getUser();
 
     if (user) {
